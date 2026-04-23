@@ -1,0 +1,257 @@
+{
+  "jaren": [
+    "2025",
+    "2026"
+  ],
+  "huidigJaar": "2025",
+  "inkomsten": {
+    "2025": [
+      {
+        "id": "mnsjgdpzica",
+        "jaar": "2025",
+        "naam": "Tussendoor – via Korenhof WA-rek",
+        "datum": "2025-10-06",
+        "cash": 0,
+        "wisselgeld": 0,
+        "qr": 0,
+        "tussendoor": 29,
+        "tussendoor_omsch": "Losse verkopen via WA-rekening Korenhof (€7 + €12 + €10)",
+        "notities": "Aparte tussendoor-post, niet gebonden aan verkoopdag"
+      },
+      {
+        "id": "mnsjgdpzi7r",
+        "jaar": "2025",
+        "naam": "Verkoop 1 – Korenhof 8 okt",
+        "datum": "2025-10-08",
+        "cash": 120.4,
+        "wisselgeld": 21,
+        "qr": 3.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Incl. €21 wisselgeld teruggegeven"
+      },
+      {
+        "id": "mnsjgdpzks8",
+        "jaar": "2025",
+        "naam": "Verkoop 2 – 17 okt",
+        "datum": "2025-10-17",
+        "cash": 130,
+        "wisselgeld": 13,
+        "qr": 78.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Incl. €13 wisselgeld teruggegeven"
+      },
+      {
+        "id": "mnsjgdpz4at",
+        "jaar": "2025",
+        "naam": "Verkoop 3 – 18 okt",
+        "datum": "2025-10-18",
+        "cash": 209.9,
+        "wisselgeld": 27,
+        "qr": 66,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Incl. €27 wisselgeld teruggegeven"
+      },
+      {
+        "id": "mnsjgdpzx95",
+        "jaar": "2025",
+        "naam": "Verkoop 4 – 24 okt",
+        "datum": "2025-10-24",
+        "cash": 0,
+        "wisselgeld": 0,
+        "qr": 18,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Alleen QR-betalingen"
+      },
+      {
+        "id": "mnsjgdpz2jl",
+        "jaar": "2025",
+        "naam": "Verkoop 4/5 – 31 okt",
+        "datum": "2025-10-31",
+        "cash": 123.65,
+        "wisselgeld": 27,
+        "qr": 30.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Gecombineerde editie. Incl. €27 wisselgeld."
+      },
+      {
+        "id": "mnsjgdpzahm",
+        "jaar": "2025",
+        "naam": "Verkoop 6 – 28 nov",
+        "datum": "2025-11-28",
+        "cash": 125.5,
+        "wisselgeld": 22,
+        "qr": 16.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Incl. €22 wisselgeld teruggegeven"
+      },
+      {
+        "id": "mnsjgdpzjv6",
+        "jaar": "2025",
+        "naam": "Verkoop 7 – 29 nov",
+        "datum": "2025-11-29",
+        "cash": 53.5,
+        "wisselgeld": 20.5,
+        "qr": 72.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Incl. €20,50 wisselgeld teruggegeven"
+      },
+      {
+        "id": "mnsjgdpzezj",
+        "jaar": "2025",
+        "naam": "Verkoop 8 – 13/14 dec",
+        "datum": "2025-12-13",
+        "cash": 30,
+        "wisselgeld": 0,
+        "qr": 15.5,
+        "tussendoor": 0,
+        "tussendoor_omsch": "",
+        "notities": "Laatste verkoop seizoen 2025"
+      }
+    ],
+    "2026": []
+  },
+  "uitgaven": {
+    "2025": [
+      {
+        "id": "mnsjgdpzs2o",
+        "jaar": "2025",
+        "datum": "2025-09-20",
+        "omschrijving": "Kruidkoek",
+        "bedrag": 2,
+        "bw": "rek-gem",
+        "notitie": ""
+      },
+      {
+        "id": "mnsjgdpzz0k",
+        "jaar": "2025",
+        "datum": "2025-09-20",
+        "omschrijving": "De Spil plukken",
+        "bedrag": 32,
+        "bw": "rek-wa",
+        "notitie": ""
+      },
+      {
+        "id": "mnsjgdpzga9",
+        "jaar": "2025",
+        "datum": "2025-09-25",
+        "omschrijving": "7 pakjes geleisuiker",
+        "bedrag": 15.33,
+        "bw": "rek-gem",
+        "notitie": "7 × €2,19"
+      },
+      {
+        "id": "mnsjgdpzosm",
+        "jaar": "2025",
+        "datum": "2025-09-25",
+        "omschrijving": "Huur keuken Korenhof",
+        "bedrag": 25,
+        "bw": "cash",
+        "notitie": "via Trees"
+      },
+      {
+        "id": "mnsjgdpzd0w",
+        "jaar": "2025",
+        "datum": "2025-10-02",
+        "omschrijving": "Stickers",
+        "bedrag": 11.23,
+        "bw": "rek-gem",
+        "notitie": ""
+      },
+      {
+        "id": "mnsjgdpzoa1",
+        "jaar": "2025",
+        "datum": "2025-10-02",
+        "omschrijving": "Doekjes",
+        "bedrag": 0,
+        "bw": "in-natura",
+        "notitie": ""
+      },
+      {
+        "id": "mnsjgdpzgue",
+        "jaar": "2025",
+        "datum": "2025-10-08",
+        "omschrijving": "Huur markt Korenhof",
+        "bedrag": 0,
+        "bw": "rek-gem",
+        "notitie": "gratis"
+      },
+      {
+        "id": "mnsjgdpzhp9",
+        "jaar": "2025",
+        "datum": "2025-10-09",
+        "omschrijving": "Huur keuken Korenhof",
+        "bedrag": 25,
+        "bw": "cash",
+        "notitie": "via Trees"
+      },
+      {
+        "id": "mnsjgdpzrdh",
+        "jaar": "2025",
+        "datum": "2025-10-09",
+        "omschrijving": "4 pakjes geleisuiker",
+        "bedrag": 8.76,
+        "bw": "rek-gem",
+        "notitie": "4 × €2,19"
+      },
+      {
+        "id": "mnsjgdpzoz2",
+        "jaar": "2025",
+        "datum": "2025-11-19",
+        "omschrijving": "5 pakjes geleisuiker",
+        "bedrag": 11.45,
+        "bw": "rek-gem",
+        "notitie": "5 × €2,29"
+      }
+    ],
+    "2026": []
+  },
+  "restanten": {
+    "2025": 359.75,
+    "2026": 421.43
+  },
+  "goedeDoeLen": {
+    "2025": [
+      {
+        "id": "mnsjgdpz8e8",
+        "jaar": "2025",
+        "naam": "OEK",
+        "bedrag": 100,
+        "datum": "2026-03-07",
+        "bw": "bank",
+        "notitie": ""
+      },
+      {
+        "id": "mnsjgdpzfjv",
+        "jaar": "2025",
+        "naam": "Oranjevereniging",
+        "bedrag": 700,
+        "datum": "2026-03-11",
+        "bw": "bank",
+        "notitie": ""
+      }
+    ],
+    "2026": []
+  },
+  "kasbalans": {
+    "2025": {
+      "env": 0,
+      "port": 100,
+      "zakje": 0,
+      "bank": 321.43,
+      "overig": 0
+    }
+  },
+  "waTegoed": {
+    "2025": {
+      "bedrag": 0,
+      "notitie": ""
+    }
+  }
+}

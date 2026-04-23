@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pluk & Deel — Financiën</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;1,300;1,500&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --groen: #2d5016;
+    --groen-mid: #4a7c28;
+    --groen-licht: #7eb356;
+    --groen-zacht: #c8e6a0;
+    --beige: #f5f0e8;
+    --beige-dark: #e8e0ce;
+    --rood: #8b2e0f;
+    --rood-licht: #f5e8e2;
+    --goud: #b8860b;
+    --goud-licht: #f5edd0;
+    --tekst: #1a1a12;
+    --grijs: #6b6b5a;
+    --wit: #fafaf5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--beige); color: var(--tekst); font-family: 'DM Mono', monospace; font-size: 13px; min-height: 100vh; }
+
+  header { background: var(--groen); color: var(--wit); padding: 22px 40px 18px; display: flex; align-items: baseline; gap: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(45,80,22,0.3); flex-wrap: wrap; }
+  header h1 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500; letter-spacing: -0.5px; line-height: 1; }
+  header h1 em { font-style: italic; color: var(--groen-zacht); }
+  .jaar-tag { font-size: 11px; background: var(--groen-mid); color: var(--groen-zacht); padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+  header nav { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+  header nav button { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.75); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; transition: all 0.15s; }
+  header nav button:hover, header nav button.actief { background: var(--groen-mid); border-color: var(--groen-licht); color: #fff; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px 80px; }
+
+  .saldo-banner { background: var(--groen); color: var(--wit); border-radius: 12px; padding: 24px 32px; margin-bottom: 28px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .saldo-item { padding: 0 18px; border-right: 1px solid rgba(255,255,255,0.15); }
+  .saldo-item:first-child { padding-left: 0; }
+  .saldo-item:last-child { border-right: none; }
+  .saldo-label { font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--groen-zacht); margin-bottom: 5px; }
+  .saldo-bedrag { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; line-height: 1; }
+  .saldo-bedrag.pos { color: var(--groen-zacht); }
+  .saldo-bedrag.neg { color: #ffb3a0; }
+  .saldo-sub { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+  .tab-content { display: none; }
+  .tab-content.actief { display: block; }
+
+  .sectie-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .sectie-titel { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--groen); }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; transition: all 0.15s; }
+  .btn-p { background: var(--groen); color: #fff; }
+  .btn-p:hover { background: var(--groen-mid); }
+  .btn-s { background: var(--beige-dark); color: var(--tekst); border: 1px solid var(--beige-dark); }
+  .btn-s:hover { background: var(--groen-zacht); }
+  .btn-g { background: var(--rood-licht); color: var(--rood); }
+  .btn-g:hover { background: #f0cfc4; }
+  .btn-goud { background: var(--goud-licht); color: var(--goud); border: 1px solid #e8d8a0; }
+  .btn-goud:hover { background: #ecd99a; }
+  .btn-k { padding: 4px 10px; font-size: 11px; border-radius: 5px; }
+
+  .tabel-wrap { background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); overflow: hidden; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--beige); text-align: left; padding: 10px 16px; font-size: 10px; letter-spacing: 0.7px; text-transform: uppercase; color: var(--grijs); border-bottom: 1px solid var(--beige-dark); font-weight: 500; }
+  td { padding: 10px 16px; border-bottom: 1px solid #f0ece4; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf0; }
+  .leeg { text-align: center; padding: 40px 16px; color: var(--grijs); font-style: italic; font-family: 'Fraunces', serif; font-size: 15px; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500; }
+  .b-rek { background: #dce8f5; color: #1a4a7a; }
+  .b-cash { background: #e8f5dc; color: #2d5016; }
+  .b-qr { background: #f5eadc; color: #7a4a1a; }
+  .b-nat { background: #f0f0f0; color: #555; }
+
+  .fkaart { background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); padding: 24px 28px; margin-bottom: 20px; }
+  .fkaart h3 { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500; color: var(--groen); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--beige-dark); }
+  .vrij { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .vg { display: flex; flex-direction: column; gap: 5px; }
+  .vg label { font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--grijs); }
+  .vg input, .vg select, .vg textarea { background: var(--beige); border: 1px solid var(--beige-dark); border-radius: 7px; padding: 9px 12px; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--tekst); transition: border-color 0.15s; width: 100%; }
+  .vg input:focus, .vg select:focus, .vg textarea:focus { outline: none; border-color: var(--groen-licht); background: var(--wit); }
+  .fact { display: flex; gap: 8px; margin-top: 8px; }
+
+  .ed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .ed-kaart { background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); padding: 20px 22px; cursor: pointer; position: relative; transition: box-shadow 0.15s; }
+  .ed-kaart:hover { box-shadow: 0 4px 16px rgba(45,80,22,0.1); }
+  .ed-kaart.sel { border-color: var(--groen-licht); box-shadow: 0 0 0 2px var(--groen-zacht); }
+  .ed-naam { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 500; color: var(--groen); margin-bottom: 3px; }
+  .ed-datum { font-size: 11px; color: var(--grijs); margin-bottom: 12px; }
+  .ed-cijfers { display: flex; gap: 14px; flex-wrap: wrap; }
+  .ed-cijfer-label { font-size: 10px; color: var(--grijs); }
+  .ed-cijfer-waarde { font-size: 14px; font-family: 'Fraunces', serif; font-weight: 300; }
+  .ed-acties { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+  .ed-kaart:hover .ed-acties { opacity: 1; }
+  .pos { color: var(--groen-mid); }
+  .neg { color: var(--rood); }
+
+  .ink-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .ink-vak { background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); padding: 18px 20px; }
+  .ink-vak h4 { font-family: 'Fraunces', serif; font-size: 14px; color: var(--groen); margin-bottom: 12px; }
+  .groot { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 300; color: var(--groen-mid); margin-bottom: 10px; }
+
+  .jaar-balk { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; padding: 12px 18px; background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); flex-wrap: wrap; }
+  .jaar-balk span { font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--grijs); margin-right: 4px; }
+  .jknop { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--beige-dark); background: transparent; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--tekst); }
+  .jknop:hover, .jknop.actief { background: var(--groen); color: #fff; border-color: var(--groen); }
+  .jknop-plus { background: none; border: 1px dashed var(--groen-licht); color: var(--groen-mid); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; font-size: 18px; font-family: monospace; }
+  .jknop-plus:hover { background: var(--groen); color: #fff; border-color: var(--groen); }
+
+  .ov-kaarten { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .ov-kaart { background: var(--wit); border-radius: 10px; border: 1px solid var(--beige-dark); padding: 22px 26px; }
+  .ov-kaart h3 { font-family: 'Fraunces', serif; font-size: 15px; color: var(--groen); margin-bottom: 14px; }
+  .ov-rij { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #f0ece4; gap: 8px; }
+  .ov-rij:last-child { border-bottom: none; }
+  .ov-rij .olabel { flex: 1; min-width: 0; font-size: 12px; }
+  .ov-rij .osub { font-size: 10px; color: var(--grijs); }
+  .ov-rij.tot { border-top: 2px solid var(--beige-dark); border-bottom: none; padding-top: 10px; margin-top: 4px; }
+  .ov-rij.tot .owaarde { font-family: 'Fraunces', serif; font-size: 17px; }
+
+  .ea-kaart { background: linear-gradient(135deg, #faf6e8 0%, var(--wit) 100%); border: 1px solid #d4c990; border-radius: 12px; padding: 26px 30px; margin-bottom: 20px; }
+  .ea-kaart h3 { font-family: 'Fraunces', serif; font-size: 17px; color: var(--goud); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #e0d49a; }
+  .gd-rij { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0ece4; }
+  .gd-rij:last-child { border-bottom: none; }
+  .gd-naam { flex: 1; font-weight: 500; }
+  .gd-datum { font-size: 11px; color: var(--grijs); }
+  .gd-bedrag { font-family: 'Fraunces', serif; font-size: 17px; color: var(--goud); }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30,40,20,0.45); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--wit); border-radius: 14px; padding: 28px; width: 500px; max-width: calc(100vw - 32px); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal h2 { font-family: 'Fraunces', serif; font-size: 19px; color: var(--groen); margin-bottom: 20px; }
+  .m-act { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+  .notif { position: fixed; bottom: 24px; right: 24px; background: var(--groen); color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 12px; z-index: 300; opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; }
+  .notif.show { opacity: 1; transform: translateY(0); }
+
+  hr.div { border: none; border-top: 1px solid var(--beige-dark); margin: 20px 0; }
+  .export-rij { border-top: 1px solid var(--beige-dark); padding-top: 14px; margin-top: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .export-rij span { font-size: 11px; color: var(--grijs); margin-right: 4px; }
+
+  @media (max-width: 700px) {
+    .saldo-banner { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .saldo-item { border-right: none; padding: 0; }
+    .ink-grid { grid-template-columns: 1fr; }
+    .ov-kaarten { grid-template-columns: 1fr; }
+    header nav { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pluk <em>&</em> Deel</h1>
+  <div class="jaar-tag" id="jaar-tag">Financiën</div>
+  <nav>
+    <button class="actief" onclick="toonTab('overzicht')">Overzicht</button>
+    <button onclick="toonTab('inkomsten')">Verkoopmomenten</button>
+    <button onclick="toonTab('uitgaven')">Uitgaven</button>
+    <button onclick="toonTab('afrekening')">Afrekening</button>
+    <button onclick="toonTab('instellingen')">⚙</button>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="saldo-banner">
+    <div class="saldo-item">
+      <div class="saldo-label">Netto opbrengst</div>
+      <div class="saldo-bedrag pos" id="sb-netto">€ –</div>
+      <div class="saldo-sub" id="sb-netto-sub">dit jaar</div>
+    </div>
+    <div class="saldo-item">
+      <div class="saldo-label">In kas</div>
+      <div class="saldo-bedrag pos" id="sb-kas">€ –</div>
+      <div class="saldo-sub" id="sb-kas-sub">na giften</div>
+    </div>
+    <div class="saldo-item">
+      <div class="saldo-label">Uitgaven dit jaar</div>
+      <div class="saldo-bedrag" id="sb-uit">€ –</div>
+      <div class="saldo-sub" id="sb-uit-sub">–</div>
+    </div>
+    <div class="saldo-item">
+      <div class="saldo-label">Inkomsten dit jaar</div>
+      <div class="saldo-bedrag" id="sb-ed">–</div>
+      <div class="saldo-sub">verkoopmomenten</div>
+    </div>
+  </div>
+
+  <!-- OVERZICHT -->
+  <div class="tab-content actief" id="tab-overzicht">
+    <div class="sectie-header"><div class="sectie-titel">Overzicht</div></div>
+    <div class="jaar-balk" id="jb-ov"></div>
+    <div class="ov-kaarten">
+      <div class="ov-kaart"><h3>Inkomsten dit jaar</h3><div id="ov-ink"></div></div>
+      <div class="ov-kaart"><h3>Uitgaven dit jaar</h3><div id="ov-uit"></div></div>
+    </div>
+    <div class="ov-kaart" style="margin-bottom:20px;"><h3>Alle jaren</h3><div id="ov-jaren"></div></div>
+  </div>
+
+  <!-- INKOMSTEN -->
+  <div class="tab-content" id="tab-inkomsten">
+    <div class="sectie-header">
+      <div class="sectie-titel">Verkoopmomenten</div>
+      <button class="btn btn-p" onclick="openEditieModal()">+ Nieuwe editie</button>
+    </div>
+    <div class="jaar-balk" id="jb-ed"></div>
+    <div class="ed-grid" id="ed-grid"></div>
+
+    <div id="ed-detail" style="display:none;">
+      <hr class="div">
+      <div class="sectie-header">
+        <div class="sectie-titel" id="det-titel">–</div>
+        <button class="btn btn-s btn-k" onclick="sluitDetail()">↑ Terug</button>
+      </div>
+      <div class="ink-grid">
+        <div class="ink-vak">
+          <h4>💵 Cash</h4>
+          <div class="groot" id="det-cash">€ 0,00</div>
+          <div class="vg" style="margin-bottom:10px;"><label>Bruto ontvangen</label><input type="number" step="0.01" id="inv-cash" placeholder="0.00" oninput="updInk()"></div>
+          <div class="vg"><label>Wisselgeld teruggegeven</label><input type="number" step="0.01" id="inv-wissel" placeholder="0.00" oninput="updInk()"></div>
+        </div>
+        <div class="ink-vak">
+          <h4>📱 QR / Pin</h4>
+          <div class="groot" id="det-qr">€ 0,00</div>
+          <div class="vg"><label>Totaal via QR / pin</label><input type="number" step="0.01" id="inv-qr" placeholder="0.00" oninput="updInk()"></div>
+        </div>
+        <div class="ink-vak">
+          <h4>🍎 Tussendoor</h4>
+          <div class="groot" id="det-td">€ 0,00</div>
+          <div class="vg" style="margin-bottom:10px;"><label>Bedrag</label><input type="number" step="0.01" id="inv-td" placeholder="0.00" oninput="updInk()"></div>
+          <div class="vg"><label>Omschrijving</label><input type="text" id="inv-td-omsch" placeholder="bijv. donatie"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:20px; align-items:center; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px; background:var(--wit); border:1px solid var(--beige-dark); border-radius:10px; padding:14px 20px; display:flex; align-items:baseline; gap:12px;">
+          <span style="font-size:11px; color:var(--grijs);">NETTO OPBRENGST</span>
+          <span style="font-family:'Fraunces',serif; font-size:24px; font-weight:300;" id="det-netto">€ 0,00</span>
+        </div>
+        <button class="btn btn-p" onclick="slaInkOp()">Opslaan</button>
+      </div>
+      <div class="vg" style="max-width:500px; margin-bottom:8px;"><label>Notities</label><textarea id="inv-notities" rows="2" placeholder="Opmerkingen..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- UITGAVEN -->
+  <div class="tab-content" id="tab-uitgaven">
+    <div class="sectie-header">
+      <div class="sectie-titel">Uitgaven</div>
+      <button class="btn btn-p" onclick="openUitgaveModal()">+ Nieuwe uitgave</button>
+    </div>
+    <div class="jaar-balk" id="jb-uit"></div>
+    <div class="tabel-wrap">
+      <table><thead><tr><th>Datum</th><th>Omschrijving</th><th>Bedrag</th><th>Betaalwijze</th><th>Notitie</th><th></th></tr></thead>
+      <tbody id="uit-tabel"></tbody></table>
+    </div>
+    <div style="background:var(--wit); border:1px solid var(--beige-dark); border-radius:10px; padding:14px 22px; display:inline-flex; align-items:baseline; gap:12px;">
+      <span style="font-size:11px; color:var(--grijs);">TOTAAL UITGAVEN</span>
+      <span style="font-family:'Fraunces',serif; font-size:20px; font-weight:300; color:var(--rood);" id="uit-totaal">€ 0,00</span>
+    </div>
+  </div>
+
+  <!-- AFREKENING -->
+  <div class="tab-content" id="tab-afrekening">
+    <div class="sectie-header">
+      <div class="sectie-titel">Afrekening & goede doelen</div>
+      <button class="btn btn-goud" onclick="openGdModal()">+ Goed doel</button>
+    </div>
+    <div class="jaar-balk" id="jb-afr"></div>
+
+    <!-- Goede doelen -->
+    <div class="ea-kaart">
+      <h3>🌱 Verdeling opbrengst — goede doelen</h3>
+      <div id="gd-lijst"></div>
+      <hr class="div">
+      <div style="display:flex; flex-wrap:wrap; gap:24px;">
+        <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs); margin-bottom:4px;">Totaal overgemaakt</div><div style="font-family:'Fraunces',serif; font-size:20px;" id="gd-totaal">€ 0,00</div></div>
+        <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs); margin-bottom:4px;">Beschikbaar vermogen</div><div style="font-family:'Fraunces',serif; font-size:20px;" id="gd-vermogen">€ 0,00</div></div>
+        <div><div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs); margin-bottom:4px;">Restant in kas</div><div style="font-family:'Fraunces',serif; font-size:20px; color:var(--groen-mid);" id="gd-restant">€ 0,00</div></div>
+      </div>
+    </div>
+
+    <!-- Kasbalans -->
+    <div class="ea-kaart">
+      <h3>🏦 Kasbalans — werkelijk aanwezig</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;">
+        <div id="kb-overzicht"><div style="color:var(--grijs); font-style:italic; font-size:12px;">Nog geen gegevens.</div></div>
+        <div>
+          <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs); margin-bottom:10px;">Invoer</div>
+          <div class="vg" style="margin-bottom:8px;"><label>Giro-envelop (papier)</label><input type="number" step="0.01" id="kb-env" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:8px;"><label>Portemonnee</label><input type="number" step="0.01" id="kb-port" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:8px;"><label>Plastic zakje (muntgeld)</label><input type="number" step="0.01" id="kb-zakje" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:8px;"><label>Bank (ASN-rekening)</label><input type="number" step="0.01" id="kb-bank" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:10px;"><label>Overig / spaarpot</label><input type="number" step="0.01" id="kb-overig" placeholder="0.00"></div>
+          <button class="btn btn-p" onclick="slaKbOp()">Opslaan</button>
+        </div>
+      </div>
+      <div style="background:var(--beige); border-radius:8px; padding:12px 18px; display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs);">Totaal kas + bank</span>
+        <span style="font-family:'Fraunces',serif; font-size:22px; font-weight:300;" id="kb-totaal">€ 0,00</span>
+      </div>
+    </div>
+
+    <!-- WA tegoed -->
+    <div class="fkaart">
+      <h3>WA-rekening tegoed</h3>
+      <p style="font-size:12px; color:var(--grijs); margin-bottom:14px;">Bedrag dat de WA-rekening heeft voorgeschoten en terugbetaald moet worden.</p>
+      <div class="vrij">
+        <div class="vg"><label>Bedrag (€)</label><input type="number" step="0.01" id="wa-bedrag" placeholder="0.00"></div>
+        <div class="vg"><label>Notitie</label><input type="text" id="wa-notitie" placeholder="bijv. geleisuiker, huur..."></div>
+      </div>
+      <div class="fact"><button class="btn btn-p" onclick="slaWaOp()">Opslaan</button></div>
+    </div>
+  </div>
+
+  <!-- INSTELLINGEN -->
+  <div class="tab-content" id="tab-instellingen">
+    <div class="sectie-header"><div class="sectie-titel">Instellingen & beheer</div></div>
+    <div class="fkaart">
+      <h3>Beginstand — restant vorige inkomsten</h3>
+      <p style="font-size:12px; color:var(--grijs); margin-bottom:14px;">Bedrag overgebleven uit vorig jaar dat als beginvermogen meeloopt.</p>
+      <div class="vrij">
+        <div class="vg"><label>Jaar</label><select id="inst-jaar" onchange="laadRestant()"></select></div>
+        <div class="vg"><label>Restant (€)</label><input type="number" step="0.01" id="inst-restant" placeholder="0.00"></div>
+      </div>
+      <div class="fact"><button class="btn btn-p" onclick="slaRestantOp()">Opslaan</button></div>
+    </div>
+    <div class="fkaart">
+      <h3>Data exporteren / importeren</h3>
+      <p style="font-size:12px; color:var(--grijs); margin-bottom:14px;">Exporteer als JSON-backup of CSV voor archief.</p>
+      <div class="export-rij"><span>Export:</span>
+        <button class="btn btn-s" onclick="exportJSON()">📥 JSON backup</button>
+        <button class="btn btn-s" onclick="exportCSV()">📄 CSV</button>
+      </div>
+      <div class="export-rij"><span>Import:</span>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importJSON(event)">
+        <button class="btn btn-s" onclick="document.getElementById('import-file').click()">📤 Laad backup</button>
+      </div>
+    </div>
+    <div class="fkaart" style="border-color:#f0cfc4;">
+      <h3 style="color:var(--rood);">Gevaarzone</h3>
+      <p style="font-size:12px; color:var(--grijs); margin-bottom:14px;">Verwijder alle data. Maak eerst een backup.</p>
+      <button class="btn btn-g" onclick="verwijderAlles()">🗑 Alles verwijderen</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="m-editie">
+  <div class="modal">
+    <h2 id="m-ed-titel">Nieuwe editie</h2>
+    <div class="vg" style="margin-bottom:12px;"><label>Naam</label><input type="text" id="ed-naam" placeholder="bijv. Verkoop 1 – Korenhof"></div>
+    <div class="vrij">
+      <div class="vg"><label>Datum</label><input type="date" id="ed-datum"></div>
+      <div class="vg"><label>Jaar</label><select id="ed-jaar"></select></div>
+    </div>
+    <div class="m-act">
+      <button class="btn btn-s" onclick="sluitModal('m-editie')">Annuleren</button>
+      <button class="btn btn-p" onclick="slaEditieOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-uitgave">
+  <div class="modal">
+    <h2 id="m-uit-titel">Nieuwe uitgave</h2>
+    <div class="vg" style="margin-bottom:12px;"><label>Omschrijving</label><input type="text" id="uit-omsch" placeholder="bijv. geleisuiker, huur keuken..."></div>
+    <div class="vrij">
+      <div class="vg"><label>Datum</label><input type="date" id="uit-datum"></div>
+      <div class="vg"><label>Bedrag (€)</label><input type="number" step="0.01" id="uit-bedrag" placeholder="0.00"></div>
+    </div>
+    <div class="vrij">
+      <div class="vg"><label>Betaalwijze</label>
+        <select id="uit-bw">
+          <option value="rek-gem">Rekening gemeenschappelijk</option>
+          <option value="rek-wa">Rekening WA</option>
+          <option value="cash">Cash</option>
+          <option value="in-natura">In natura (geen kosten)</option>
+          <option value="anders">Anders</option>
+        </select>
+      </div>
+      <div class="vg"><label>Jaar</label><select id="uit-jaar"></select></div>
+    </div>
+    <div class="vg" style="margin-top:4px;"><label>Notitie</label><input type="text" id="uit-notitie" placeholder="optioneel"></div>
+    <div class="m-act">
+      <button class="btn btn-s" onclick="sluitModal('m-uitgave')">Annuleren</button>
+      <button class="btn btn-p" onclick="slaUitgaveOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-gd">
+  <div class="modal">
+    <h2 id="m-gd-titel">Goed doel toevoegen</h2>
+    <div class="vg" style="margin-bottom:12px;"><label>Naam organisatie</label><input type="text" id="gd-naam" placeholder="bijv. Voedselbank Drenthe"></div>
+    <div class="vrij">
+      <div class="vg"><label>Bedrag (€)</label><input type="number" step="0.01" id="gd-bedrag" placeholder="0.00"></div>
+      <div class="vg"><label>Datum overmaking</label><input type="date" id="gd-datum"></div>
+    </div>
+    <div class="vrij">
+      <div class="vg"><label>Betaalwijze</label>
+        <select id="gd-bw">
+          <option value="bank">Bankoverschrijving</option>
+          <option value="cash">Cash</option>
+          <option value="anders">Anders</option>
+        </select>
+      </div>
+      <div class="vg"><label>Jaar</label><select id="gd-jaar"></select></div>
+    </div>
+    <div class="vg" style="margin-top:4px;"><label>Notitie</label><input type="text" id="gd-notitie" placeholder="optioneel"></div>
+    <div class="m-act">
+      <button class="btn btn-s" onclick="sluitModal('m-gd')">Annuleren</button>
+      <button class="btn btn-goud" onclick="slaGdOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ════════════════════════════════
+// DATA
+// ════════════════════════════════
+const KEY = 'plukdeel_v2';
+
+function defaultData() {
+  const j = String(new Date().getFullYear());
+  return { jaren:[j], huidigJaar:j, inkomsten:{}, uitgaven:{}, restanten:{}, goedeDoeLen:{}, kasbalans:{}, waTegoed:{} };
+}
+
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); } catch { return defaultData(); } }
+function save() { localStorage.setItem(KEY, JSON.stringify(D)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
+let D = load();
+let jaar = D.huidigJaar;
+let aktEditie = null, bewEditie = null, bewUitgave = null, bewGd = null;
+
+// ════════════════════════════════
+// BEREKENINGEN
+// ════════════════════════════════
+const eds  = j => D.inkomsten[j] || [];
+const uits = j => D.uitgaven[j] || [];
+const gds  = j => D.goedeDoeLen[j] || [];
+
+function nettoEd(e) {
+  return Math.max(0,(parseFloat(e.cash)||0)-(parseFloat(e.wisselgeld)||0)) + (parseFloat(e.qr)||0) + (parseFloat(e.tussendoor)||0);
+}
+function totInk(j)  { return eds(j).reduce((s,e) => s+nettoEd(e), 0); }
+function totUit(j)  { return uits(j).filter(u=>u.bw!=='in-natura').reduce((s,u)=>s+(parseFloat(u.bedrag)||0),0); }
+function totGd(j)   { return gds(j).reduce((s,g)=>s+(parseFloat(g.bedrag)||0),0); }
+function restant(j) { return parseFloat(D.restanten[j])||0; }
+function vermogen(j){ return totInk(j)-totUit(j)+restant(j); }
+function kbTotaal(j){ const k=D.kasbalans[j]||{}; return ['env','port','zakje','bank','overig'].reduce((s,x)=>s+(parseFloat(k[x])||0),0); }
+
+// ════════════════════════════════
+// HELPERS
+// ════════════════════════════════
+function eur(n) { return '€\u00a0'+(parseFloat(n)||0).toLocaleString('nl-NL',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(d) { return d ? new Date(d+'T12:00').toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '–'; }
+function fmtLang(d) { return d ? new Date(d+'T12:00').toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}) : '–'; }
+
+function notif(t) {
+  const el=document.getElementById('notif');
+  el.textContent=t; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+function zorgJaar(j) {
+  if (!D.jaren.includes(j)) D.jaren.push(j);
+  if (!D.inkomsten[j])    D.inkomsten[j]=[];
+  if (!D.uitgaven[j])   D.uitgaven[j]=[];
+  if (!D.goedeDoeLen[j])D.goedeDoeLen[j]=[];
+  save();
+}
+
+// ════════════════════════════════
+// JAAR
+// ════════════════════════════════
+function kiesJaar(j) { jaar=j; D.huidigJaar=j; save(); herlaad(); }
+
+function voegJaarToe() {
+  const j=prompt('Nieuw jaar:',new Date().getFullYear()+1);
+  if (!j||isNaN(j)) return;
+  zorgJaar(String(parseInt(j)));
+  kiesJaar(String(parseInt(j)));
+}
+
+function jaarBalken() {
+  ['ov','ed','uit','afr'].forEach(p => {
+    const el=document.getElementById('jb-'+p);
+    if (!el) return;
+    el.innerHTML='<span>Jaar:</span>'+
+      D.jaren.sort().map(j=>`<button class="jknop ${j===jaar?'actief':''}" onclick="kiesJaar('${j}')">${j}</button>`).join('')+
+      `<button class="jknop-plus" onclick="voegJaarToe()">+</button>`;
+  });
+  document.getElementById('jaar-tag').textContent=jaar;
+}
+
+function vulSelects() {
+  ['ed-jaar','uit-jaar','inst-jaar','gd-jaar'].forEach(id=>{
+    const el=document.getElementById(id);
+    if (!el) return;
+    el.innerHTML=D.jaren.sort().map(j=>`<option value="${j}" ${j===jaar?'selected':''}>${j}</option>`).join('');
+  });
+}
+
+// ════════════════════════════════
+// TABS
+// ════════════════════════════════
+function toonTab(naam) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('actief'));
+  document.querySelectorAll('header nav button').forEach(b=>b.classList.remove('actief'));
+  document.getElementById('tab-'+naam).classList.add('actief');
+  const idx=['overzicht','inkomsten','uitgaven','afrekening','instellingen'].indexOf(naam);
+  document.querySelectorAll('header nav button')[idx]?.classList.add('actief');
+  if (naam!=='inkomsten') sluitDetail();
+  if (naam==='afrekening') tekenAfrekening();
+  if (naam==='instellingen') laadRestant();
+}
+
+// ════════════════════════════════
+// INKOMSTEN
+// ════════════════════════════════
+function openEditieModal(id) {
+  bewEditie=id||null; vulSelects();
+  if (id) {
+    const e=eds(jaar).find(x=>x.id===id)||{};
+    document.getElementById('m-ed-titel').textContent='Editie bewerken';
+    document.getElementById('ed-naam').value=e.naam||'';
+    document.getElementById('ed-datum').value=e.datum||'';
+    document.getElementById('ed-jaar').value=e.jaar||jaar;
+  } else {
+    document.getElementById('m-ed-titel').textContent='Nieuwe editie';
+    document.getElementById('ed-naam').value='';
+    document.getElementById('ed-datum').value=new Date().toISOString().slice(0,10);
+    document.getElementById('ed-jaar').value=jaar;
+  }
+  document.getElementById('m-editie').classList.add('open');
+}
+
+function slaEditieOp() {
+  const naam=document.getElementById('ed-naam').value.trim();
+  const datum=document.getElementById('ed-datum').value;
+  const j=document.getElementById('ed-jaar').value;
+  if (!naam) { alert('Geef een naam.'); return; }
+  zorgJaar(j);
+  if (bewEditie) {
+    const idx=D.inkomsten[j].findIndex(x=>x.id===bewEditie);
+    if (idx>-1) Object.assign(D.inkomsten[j][idx],{naam,datum});
+  } else {
+    D.inkomsten[j].push({id:uid(),naam,datum,jaar:j,cash:0,wisselgeld:0,qr:0,tussendoor:0,tussendoor_omsch:'',notities:''});
+  }
+  save(); sluitModal('m-editie'); notif('Editie opgeslagen ✓'); herlaad();
+}
+
+function verwijderEditie(j,id) {
+  if (!confirm('Editie verwijderen?')) return;
+  D.inkomsten[j]=eds(j).filter(e=>e.id!==id); save();
+  if (aktEditie===id) sluitDetail();
+  herlaad(); notif('Verwijderd');
+}
+
+function openDetail(j,id) {
+  const e=eds(j).find(x=>x.id===id); if (!e) return;
+  aktEditie=id;
+  document.getElementById('det-titel').textContent=e.naam;
+  document.getElementById('inv-cash').value=e.cash||'';
+  document.getElementById('inv-wissel').value=e.wisselgeld||'';
+  document.getElementById('inv-qr').value=e.qr||'';
+  document.getElementById('inv-td').value=e.tussendoor||'';
+  document.getElementById('inv-td-omsch').value=e.tussendoor_omsch||'';
+  document.getElementById('inv-notities').value=e.notities||'';
+  updInk();
+  document.getElementById('ed-detail').style.display='block';
+  document.getElementById('ed-detail').scrollIntoView({behavior:'smooth',block:'start'});
+  tekenEdities();
+}
+
+function sluitDetail() {
+  aktEditie=null;
+  const el=document.getElementById('ed-detail');
+  if (el) el.style.display='none';
+  tekenEdities();
+}
+
+function updInk() {
+  const cash=parseFloat(document.getElementById('inv-cash').value)||0;
+  const wissel=parseFloat(document.getElementById('inv-wissel').value)||0;
+  const qr=parseFloat(document.getElementById('inv-qr').value)||0;
+  const td=parseFloat(document.getElementById('inv-td').value)||0;
+  const cashN=Math.max(0,cash-wissel);
+  document.getElementById('det-cash').textContent=eur(cashN);
+  document.getElementById('det-qr').textContent=eur(qr);
+  document.getElementById('det-td').textContent=eur(td);
+  document.getElementById('det-netto').textContent=eur(cashN+qr+td);
+}
+
+function slaInkOp() {
+  if (!aktEditie) return;
+  const idx=D.inkomsten[jaar].findIndex(x=>x.id===aktEditie);
+  if (idx<0) return;
+  Object.assign(D.inkomsten[jaar][idx],{
+    cash:parseFloat(document.getElementById('inv-cash').value)||0,
+    wisselgeld:parseFloat(document.getElementById('inv-wissel').value)||0,
+    qr:parseFloat(document.getElementById('inv-qr').value)||0,
+    tussendoor:parseFloat(document.getElementById('inv-td').value)||0,
+    tussendoor_omsch:document.getElementById('inv-td-omsch').value,
+    notities:document.getElementById('inv-notities').value
+  });
+  save(); notif('Inkomsten opgeslagen ✓'); herlaad();
+}
+
+function tekenEdities() {
+  const grid=document.getElementById('ed-grid');
+  const lijst=eds(jaar);
+  if (!lijst.length) {
+    grid.innerHTML=`<div class="leeg" style="grid-column:1/-1;">Nog geen inkomsten voor ${jaar}.</div>`;
+    return;
+  }
+  grid.innerHTML=lijst.sort((a,b)=>(a.datum||'')<(b.datum||'')?-1:1).map(e=>{
+    const n=nettoEd(e);
+    const cashN=Math.max(0,(parseFloat(e.cash)||0)-(parseFloat(e.wisselgeld)||0));
+    return `<div class="ed-kaart ${e.id===aktEditie?'sel':''}" onclick="openDetail('${jaar}','${e.id}')">
+      <div class="ed-acties">
+        <button class="btn btn-s btn-k" onclick="event.stopPropagation();openEditieModal('${e.id}')">✏</button>
+        <button class="btn btn-g btn-k" onclick="event.stopPropagation();verwijderEditie('${jaar}','${e.id}')">🗑</button>
+      </div>
+      <div class="ed-naam">${e.naam}</div>
+      <div class="ed-datum">${fmt(e.datum)}</div>
+      <div class="ed-cijfers">
+        <div><div class="ed-cijfer-label">Cash netto</div><div class="ed-cijfer-waarde">${eur(cashN)}</div></div>
+        <div><div class="ed-cijfer-label">QR/Pin</div><div class="ed-cijfer-waarde">${eur(e.qr||0)}</div></div>
+        ${parseFloat(e.tussendoor)?`<div><div class="ed-cijfer-label">Tussendoor</div><div class="ed-cijfer-waarde">${eur(e.tussendoor)}</div></div>`:''}
+        <div><div class="ed-cijfer-label">Netto</div><div class="ed-cijfer-waarde ${n>=0?'pos':'neg'}">${eur(n)}</div></div>
+      </div>
+      ${e.notities?`<div style="margin-top:8px;font-size:11px;color:var(--grijs);font-style:italic;">${e.notities}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+// UITGAVEN
+// ════════════════════════════════
+const bwLabel = {'rek-gem':'Rek. gem.','rek-wa':'Rek. WA','cash':'Cash','in-natura':'In natura','anders':'Anders'};
+const bwBadge = {'rek-gem':'b-rek','rek-wa':'b-rek','cash':'b-cash','in-natura':'b-nat','anders':'b-qr'};
+
+function openUitgaveModal(id) {
+  bewUitgave=id||null; vulSelects();
+  if (id) {
+    const u=uits(jaar).find(x=>x.id===id)||{};
+    document.getElementById('m-uit-titel').textContent='Uitgave bewerken';
+    document.getElementById('uit-omsch').value=u.omschrijving||'';
+    document.getElementById('uit-datum').value=u.datum||'';
+    document.getElementById('uit-bedrag').value=u.bedrag||'';
+    document.getElementById('uit-bw').value=u.bw||'rek-gem';
+    document.getElementById('uit-notitie').value=u.notitie||'';
+    document.getElementById('uit-jaar').value=u.jaar||jaar;
+  } else {
+    document.getElementById('m-uit-titel').textContent='Nieuwe uitgave';
+    document.getElementById('uit-omsch').value='';
+    document.getElementById('uit-datum').value=new Date().toISOString().slice(0,10);
+    document.getElementById('uit-bedrag').value='';
+    document.getElementById('uit-bw').value='rek-gem';
+    document.getElementById('uit-notitie').value='';
+    document.getElementById('uit-jaar').value=jaar;
+  }
+  document.getElementById('m-uitgave').classList.add('open');
+}
+
+function slaUitgaveOp() {
+  const omschrijving=document.getElementById('uit-omsch').value.trim();
+  const datum=document.getElementById('uit-datum').value;
+  const bedrag=parseFloat(document.getElementById('uit-bedrag').value)||0;
+  const bw=document.getElementById('uit-bw').value;
+  const notitie=document.getElementById('uit-notitie').value.trim();
+  const j=document.getElementById('uit-jaar').value;
+  if (!omschrijving) { alert('Vul een omschrijving in.'); return; }
+  zorgJaar(j);
+  if (bewUitgave) {
+    const idx=D.uitgaven[j].findIndex(x=>x.id===bewUitgave);
+    if (idx>-1) Object.assign(D.uitgaven[j][idx],{omschrijving,datum,bedrag,bw,notitie});
+  } else {
+    D.uitgaven[j].push({id:uid(),omschrijving,datum,bedrag,bw,notitie,jaar:j});
+  }
+  save(); sluitModal('m-uitgave'); notif('Uitgave opgeslagen ✓'); herlaad();
+}
+
+function verwijderUitgave(j,id) {
+  if (!confirm('Uitgave verwijderen?')) return;
+  D.uitgaven[j]=uits(j).filter(u=>u.id!==id); save();
+  notif('Verwijderd'); herlaad();
+}
+
+function tekenUitgaven() {
+  const tbody=document.getElementById('uit-tabel');
+  const lijst=uits(jaar).sort((a,b)=>(a.datum||'')<(b.datum||'')?-1:1);
+  let tot=0;
+  tbody.innerHTML=lijst.length ? lijst.map(u=>{
+    if (u.bw!=='in-natura') tot+=parseFloat(u.bedrag)||0;
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--grijs);">${u.datum?new Date(u.datum+'T12:00').toLocaleDateString('nl-NL',{day:'numeric',month:'short'}):'–'}</td>
+      <td>${u.omschrijving}</td>
+      <td style="white-space:nowrap;">${u.bw==='in-natura'?'<span style="color:var(--grijs)">–</span>':eur(u.bedrag)}</td>
+      <td><span class="badge ${bwBadge[u.bw]||''}">${bwLabel[u.bw]||u.bw}</span></td>
+      <td style="color:var(--grijs);font-size:11px;max-width:160px;">${u.notitie||''}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-s btn-k" onclick="openUitgaveModal('${u.id}')">✏</button>
+        <button class="btn btn-g btn-k" onclick="verwijderUitgave('${jaar}','${u.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="6" class="leeg">Geen uitgaven in ${jaar}.</td></tr>`;
+  document.getElementById('uit-totaal').textContent=eur(tot);
+}
+
+// ════════════════════════════════
+// GOEDE DOELEN
+// ════════════════════════════════
+function openGdModal(id) {
+  bewGd=id||null; vulSelects();
+  if (id) {
+    const g=gds(jaar).find(x=>x.id===id)||{};
+    document.getElementById('m-gd-titel').textContent='Goed doel bewerken';
+    document.getElementById('gd-naam').value=g.naam||'';
+    document.getElementById('gd-bedrag').value=g.bedrag||'';
+    document.getElementById('gd-datum').value=g.datum||'';
+    document.getElementById('gd-bw').value=g.bw||'bank';
+    document.getElementById('gd-notitie').value=g.notitie||'';
+    document.getElementById('gd-jaar').value=g.jaar||jaar;
+  } else {
+    document.getElementById('m-gd-titel').textContent='Goed doel toevoegen';
+    document.getElementById('gd-naam').value='';
+    document.getElementById('gd-bedrag').value='';
+    document.getElementById('gd-datum').value=new Date().toISOString().slice(0,10);
+    document.getElementById('gd-bw').value='bank';
+    document.getElementById('gd-notitie').value='';
+    document.getElementById('gd-jaar').value=jaar;
+  }
+  document.getElementById('m-gd').classList.add('open');
+}
+
+function slaGdOp() {
+  const naam=document.getElementById('gd-naam').value.trim();
+  const bedrag=parseFloat(document.getElementById('gd-bedrag').value)||0;
+  const datum=document.getElementById('gd-datum').value;
+  const bw=document.getElementById('gd-bw').value;
+  const notitie=document.getElementById('gd-notitie').value.trim();
+  const j=document.getElementById('gd-jaar').value;
+  if (!naam) { alert('Geef een naam.'); return; }
+  zorgJaar(j);
+  if (!D.goedeDoeLen[j]) D.goedeDoeLen[j]=[];
+  if (bewGd) {
+    const idx=D.goedeDoeLen[j].findIndex(x=>x.id===bewGd);
+    if (idx>-1) Object.assign(D.goedeDoeLen[j][idx],{naam,bedrag,datum,bw,notitie});
+  } else {
+    D.goedeDoeLen[j].push({id:uid(),naam,bedrag,datum,bw,notitie,jaar:j});
+  }
+  save(); sluitModal('m-gd'); notif('Goed doel opgeslagen ✓'); herlaad(); tekenAfrekening();
+}
+
+function verwijderGd(j,id) {
+  if (!confirm('Verwijderen?')) return;
+  D.goedeDoeLen[j]=gds(j).filter(g=>g.id!==id); save();
+  notif('Verwijderd'); herlaad(); tekenAfrekening();
+}
+
+// ════════════════════════════════
+// KASBALANS
+// ════════════════════════════════
+function slaKbOp() {
+  D.kasbalans[jaar]={
+    env:   parseFloat(document.getElementById('kb-env').value)||0,
+    port:  parseFloat(document.getElementById('kb-port').value)||0,
+    zakje: parseFloat(document.getElementById('kb-zakje').value)||0,
+    bank:  parseFloat(document.getElementById('kb-bank').value)||0,
+    overig:parseFloat(document.getElementById('kb-overig').value)||0
+  };
+  save(); notif('Kasbalans opgeslagen ✓'); tekenAfrekening(); tekenBanner();
+}
+
+function slaWaOp() {
+  D.waTegoed[jaar]={
+    bedrag:parseFloat(document.getElementById('wa-bedrag').value)||0,
+    notitie:document.getElementById('wa-notitie').value.trim()
+  };
+  save(); notif('WA-tegoed opgeslagen ✓'); tekenAfrekening();
+}
+
+// ════════════════════════════════
+// AFREKENING
+// ════════════════════════════════
+function tekenAfrekening() {
+  const kb=D.kasbalans[jaar]||{};
+  const wa=D.waTegoed[jaar]||{};
+  const gdl=gds(jaar);
+  const verm=vermogen(jaar);
+  const totGift=totGd(jaar);
+  const restNaGift=verm-totGift;
+  const kbTot=kbTotaal(jaar);
+
+  // Laad kasbalans velden
+  const kbMap={env:'kb-env',port:'kb-port',zakje:'kb-zakje',bank:'kb-bank',overig:'kb-overig'};
+  Object.entries(kbMap).forEach(([k,id])=>{ const el=document.getElementById(id); if(el && kb[k]) el.value=kb[k]; });
+  document.getElementById('kb-totaal').textContent=eur(kbTot);
+
+  // Kasbalans overzicht
+  const kbOv=document.getElementById('kb-overzicht');
+  const kbLabels={env:'Giro-envelop',port:'Portemonnee',zakje:'Plastic zakje',bank:'Bank (ASN)',overig:'Overig'};
+  const kbRijen=Object.entries(kbLabels).filter(([k])=>parseFloat(kb[k]))
+    .map(([k,l])=>`<div class="ov-rij"><span class="olabel">${l}</span><span>${eur(kb[k])}</span></div>`).join('');
+  kbOv.innerHTML = kbRijen || '<div style="color:var(--grijs);font-style:italic;font-size:12px;">Nog geen gegevens.</div>';
+
+  // WA tegoed
+  if (wa.bedrag) document.getElementById('wa-bedrag').value=wa.bedrag;
+  if (wa.notitie) document.getElementById('wa-notitie').value=wa.notitie;
+
+  // Goede doelen lijst
+  const gdLijst=document.getElementById('gd-lijst');
+  if (!gdl.length) {
+    gdLijst.innerHTML='<div style="color:var(--grijs);font-style:italic;font-size:13px;padding:10px 0;">Nog geen goede doelen voor '+jaar+'.</div>';
+  } else {
+    gdLijst.innerHTML=gdl.sort((a,b)=>(a.datum||'')<(b.datum||'')?-1:1).map(g=>`
+      <div class="gd-rij">
+        <div>
+          <div class="gd-naam">${g.naam}</div>
+          <div class="gd-datum">${fmtLang(g.datum)} · ${g.bw==='bank'?'bankoverschrijving':g.bw}${g.notitie?' · '+g.notitie:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="gd-bedrag">${eur(g.bedrag)}</div>
+          <button class="btn btn-s btn-k" onclick="openGdModal('${g.id}')">✏</button>
+          <button class="btn btn-g btn-k" onclick="verwijderGd('${jaar}','${g.id}')">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('gd-totaal').textContent=eur(totGift);
+  document.getElementById('gd-vermogen').textContent=eur(verm);
+  document.getElementById('gd-restant').textContent=eur(restNaGift);
+}
+
+// ════════════════════════════════
+// OVERZICHT
+// ════════════════════════════════
+function tekenOverzicht() {
+  // Inkomsten
+  const edl=eds(jaar).sort((a,b)=>(a.datum||'')<(b.datum||'')?-1:1);
+  const inkel=document.getElementById('ov-ink');
+  let totI=0;
+  if (!edl.length) { inkel.innerHTML=`<div class="leeg">Geen inkomsten in ${jaar}.</div>`; }
+  else {
+    let r=edl.map(e=>{const n=nettoEd(e);totI+=n;return`<div class="ov-rij"><span class="olabel">${e.naam}</span><span>${eur(n)}</span></div>`;}).join('');
+    r+=`<div class="ov-rij tot"><span>Totaal inkomsten</span><span class="owaarde pos">${eur(totI)}</span></div>`;
+    inkel.innerHTML=r;
+  }
+
+  // Uitgaven
+  const uitl=uits(jaar).filter(u=>u.bw!=='in-natura').sort((a,b)=>(a.datum||'')<(b.datum||'')?-1:1);
+  const uitkel=document.getElementById('ov-uit');
+  let totU=0;
+  if (!uitl.length) { uitkel.innerHTML=`<div class="leeg">Geen uitgaven in ${jaar}.</div>`; }
+  else {
+    let r=uitl.map(u=>{totU+=parseFloat(u.bedrag)||0;return`<div class="ov-rij"><span class="olabel">${u.omschrijving}</span><span>${eur(u.bedrag)}</span></div>`;}).join('');
+    r+=`<div class="ov-rij tot"><span>Totaal uitgaven</span><span class="owaarde neg">${eur(totU)}</span></div>`;
+    uitkel.innerHTML=r;
+  }
+
+  // Jaren
+  const jkel=document.getElementById('ov-jaren');
+  jkel.innerHTML=D.jaren.sort().map(j=>{
+    const verm=vermogen(j);
+    const gif=totGd(j);
+    const kas=verm-gif;
+    return`<div class="ov-rij">
+      <span style="font-weight:500;min-width:44px;">${j}</span>
+      <span class="osub" style="flex:1;font-size:11px;">
+        Inkomsten ${eur(totInk(j))} · Uitgaven ${eur(totUit(j))}${restant(j)?' · Beginstand '+eur(restant(j)):''}${gif?' · Giften '+eur(gif):''}
+      </span>
+      <span class="${kas>=0?'pos':'neg'}" style="font-family:'Fraunces',serif;font-size:16px;white-space:nowrap;">${eur(kas)}</span>
+    </div>`;
+  }).join('')||'<div class="leeg">–</div>';
+}
+
+// ════════════════════════════════
+// BANNER
+// ════════════════════════════════
+function tekenBanner() {
+  const netto=totInk(jaar)-totUit(jaar);
+  const verm=vermogen(jaar);
+  const gif=totGd(jaar);
+  const kas=verm-gif;
+  document.getElementById('sb-netto').textContent=eur(netto);
+  document.getElementById('sb-netto').className='saldo-bedrag '+(netto>=0?'pos':'neg');
+  document.getElementById('sb-netto-sub').textContent=jaar;
+  document.getElementById('sb-kas').textContent=eur(kas);
+  document.getElementById('sb-kas').className='saldo-bedrag '+(kas>=0?'pos':'neg');
+  document.getElementById('sb-kas-sub').textContent=gif?`na ${eur(gif)} giften`:'na giften';
+  document.getElementById('sb-uit').textContent=eur(totUit(jaar));
+  document.getElementById('sb-ed').textContent=eds(jaar).length;
+}
+
+// ════════════════════════════════
+// INSTELLINGEN
+// ════════════════════════════════
+function laadRestant() {
+  vulSelects();
+  const j=document.getElementById('inst-jaar')?.value;
+  if (j) document.getElementById('inst-restant').value=restant(j)||'';
+}
+
+function slaRestantOp() {
+  const j=document.getElementById('inst-jaar').value;
+  D.restanten[j]=parseFloat(document.getElementById('inst-restant').value)||0;
+  save(); notif('Beginstand opgeslagen ✓'); herlaad();
+}
+
+// ════════════════════════════════
+// EXPORT / IMPORT
+// ════════════════════════════════
+function exportJSON() {
+  const blob=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='plukdeel_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); notif('Backup gedownload ✓');
+}
+
+function exportCSV() {
+  let csv='Jaar,Type,Datum,Naam,Bedrag,Extra\n';
+  D.jaren.sort().forEach(j=>{
+    uits(j).forEach(u=>{ csv+=`${j},Uitgave,${u.datum||''},${JSON.stringify(u.omschrijving)},${u.bedrag},"${u.bw} ${u.notitie||''}"\n`; });
+    eds(j).forEach(e=>{ csv+=`${j},Editie,${e.datum||''},${JSON.stringify(e.naam)},${nettoEd(e).toFixed(2)},"cash ${e.cash||0} wissel ${e.wisselgeld||0} qr ${e.qr||0} td ${e.tussendoor||0}"\n`; });
+    gds(j).forEach(g=>{ csv+=`${j},Goed doel,${g.datum||''},${JSON.stringify(g.naam)},${g.bedrag},"${g.bw} ${g.notitie||''}"\n`; });
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='plukdeel_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); notif('CSV gedownload ✓');
+}
+
+function importJSON(event) {
+  const f=event.target.files[0]; if (!f) return;
+  const r=new FileReader();
+  r.onload=function(e){
+    try {
+      const g=JSON.parse(e.target.result);
+      if (!g.jaren||!g.inkomsten) { alert('Ongeldig bestand.'); return; }
+      if (!confirm('Huidige data overschrijven?')) return;
+      D=g;
+      if (!D.goedeDoeLen) D.goedeDoeLen={};
+      if (!D.kasbalans) D.kasbalans={};
+      if (!D.waTegoed) D.waTegoed={};
+      jaar=D.huidigJaar||D.jaren[0];
+      save(); herlaad(); notif('Data geladen ✓');
+    } catch { alert('Fout: ongeldig JSON.'); }
+  };
+  r.readAsText(f);
+  event.target.value='';
+}
+
+function verwijderAlles() {
+  if (!confirm('ALLES verwijderen?')) return;
+  if (!confirm('Zeker weten? Alle data gaat verloren.')) return;
+  localStorage.removeItem(KEY);
+  D=defaultData(); jaar=D.huidigJaar; save(); herlaad(); notif('Data gewist');
+}
+
+// ════════════════════════════════
+// MODALS
+// ════════════════════════════════
+function sluitModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',function(e){ if(e.target===this) sluitModal(this.id); });
+});
+
+// ════════════════════════════════
+// HERLAAD
+// ════════════════════════════════
+function herlaad() {
+  jaarBalken(); vulSelects();
+  tekenEdities(); tekenUitgaven(); tekenOverzicht(); tekenBanner();
+}
+
+// ════════════════════════════════
+// INITIALISATIE 2025-DATA
+// ════════════════════════════════
+function init() {
+  if (localStorage.getItem(KEY)) return;
+
+  const j='2025';
+  ['2025','2026'].forEach(zorgJaar);
+  D.jaren=['2025','2026'];
+  jaar='2026'; D.huidigJaar='2026';
+
+  D.restanten['2025']=359.75;
+  D.restanten['2026']=421.43; // kas overgedragen aan Nathalie
+
+  D.uitgaven['2025']=[
+    {id:uid(),jaar:j,datum:'2025-09-20',omschrijving:'Kruidkoek',            bedrag:2,     bw:'rek-gem',  notitie:''},
+    {id:uid(),jaar:j,datum:'2025-09-20',omschrijving:'De Spil plukken',      bedrag:32,    bw:'rek-wa',   notitie:''},
+    {id:uid(),jaar:j,datum:'2025-09-25',omschrijving:'7 pakjes geleisuiker', bedrag:15.33, bw:'rek-gem',  notitie:'7 × €2,19'},
+    {id:uid(),jaar:j,datum:'2025-09-25',omschrijving:'Huur keuken Korenhof', bedrag:25,    bw:'cash',     notitie:'via Trees'},
+    {id:uid(),jaar:j,datum:'2025-10-02',omschrijving:'Stickers',             bedrag:11.23, bw:'rek-gem',  notitie:''},
+    {id:uid(),jaar:j,datum:'2025-10-02',omschrijving:'Doekjes',              bedrag:0,     bw:'in-natura',notitie:''},
+    {id:uid(),jaar:j,datum:'2025-10-08',omschrijving:'Huur markt Korenhof',  bedrag:0,     bw:'rek-gem',  notitie:'gratis'},
+    {id:uid(),jaar:j,datum:'2025-10-09',omschrijving:'Huur keuken Korenhof', bedrag:25,    bw:'cash',     notitie:'via Trees'},
+    {id:uid(),jaar:j,datum:'2025-10-09',omschrijving:'4 pakjes geleisuiker', bedrag:8.76,  bw:'rek-gem',  notitie:'4 × €2,19'},
+    {id:uid(),jaar:j,datum:'2025-11-19',omschrijving:'5 pakjes geleisuiker', bedrag:11.45, bw:'rek-gem',  notitie:'5 × €2,29'},
+  ];
+  // Totaal: €130,77 (excl. in-natura)
+
+  D.waTegoed['2025']={bedrag:81.07, notitie:'€80,77 voorgeschoten door WA-rekening + €0,30 eigen bijdrage geleisuiker'};
+
+  D.inkomsten['2025']=[
+    {id:uid(),jaar:j,naam:'Tussendoor – via Korenhof WA-rek',datum:'2025-10-06',
+     cash:0,wisselgeld:0,qr:0,tussendoor:29,tussendoor_omsch:'Losse verkopen via WA-rekening Korenhof (€7 + €12 + €10)',
+     notities:'Aparte tussendoor-post, niet gebonden aan verkoopdag'},
+    {id:uid(),jaar:j,naam:'Verkoop 1 – Korenhof 8 okt',datum:'2025-10-08',
+     cash:120.40,wisselgeld:21,qr:3.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Incl. €21 wisselgeld teruggegeven'},
+    {id:uid(),jaar:j,naam:'Verkoop 2 – 17 okt',datum:'2025-10-17',
+     cash:130,wisselgeld:13,qr:78.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Incl. €13 wisselgeld teruggegeven'},
+    {id:uid(),jaar:j,naam:'Verkoop 3 – 18 okt',datum:'2025-10-18',
+     cash:209.90,wisselgeld:27,qr:66,tussendoor:0,tussendoor_omsch:'',
+     notities:'Incl. €27 wisselgeld teruggegeven'},
+    {id:uid(),jaar:j,naam:'Verkoop 4 – 24 okt',datum:'2025-10-24',
+     cash:0,wisselgeld:0,qr:18,tussendoor:0,tussendoor_omsch:'',
+     notities:'Alleen QR-betalingen'},
+    {id:uid(),jaar:j,naam:'Verkoop 4/5 – 31 okt',datum:'2025-10-31',
+     cash:123.65,wisselgeld:27,qr:30.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Gecombineerde editie. Incl. €27 wisselgeld.'},
+    {id:uid(),jaar:j,naam:'Verkoop 6 – 28 nov',datum:'2025-11-28',
+     cash:125.50,wisselgeld:22,qr:16.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Incl. €22 wisselgeld teruggegeven'},
+    {id:uid(),jaar:j,naam:'Verkoop 7 – 29 nov',datum:'2025-11-29',
+     cash:53.50,wisselgeld:20.50,qr:72.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Incl. €20,50 wisselgeld teruggegeven'},
+    {id:uid(),jaar:j,naam:'Verkoop 8 – 13/14 dec',datum:'2025-12-13',
+     cash:30,wisselgeld:0,qr:15.50,tussendoor:0,tussendoor_omsch:'',
+     notities:'Laatste verkoop seizoen 2025'},
+  ];
+
+  // Goede doelen — besluit 6 mrt 2026, verdeling van €1.221,43 netto vermogen
+  D.goedeDoeLen['2025']=[
+    {id:uid(),jaar:j,naam:'OEK',              bedrag:100, datum:'2026-03-07',bw:'bank',  notitie:''},
+    {id:uid(),jaar:j,naam:'Oranjevereniging', bedrag:700, datum:'2026-03-11',bw:'bank',  notitie:''},
+    // De €421,43 kas is overgedragen aan Nathalie als nieuwe secretaris
+    // en loopt als beginstand 2026, dus géén goed doel
+  ];
+
+  // Eindstand kasbalans dec 2025 / mrt 2026
+  D.kasbalans['2025']={env:345, port:545, zakje:94.50, bank:318, overig:0};
+
+  save();
+}
+
+init();
+herlaad();
+laadRestant();
+</script>
+</body>
+</html>
