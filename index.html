@@ -598,15 +598,28 @@ function slaInkOp() {
   if (!aktEditie) return;
   const idx=D.inkomsten[jaar].findIndex(x=>x.id===aktEditie);
   if (idx<0) return;
+  const oud=D.inkomsten[jaar][idx];
+  const oudCashN=Math.max(0,(parseFloat(oud.cash)||0)-(parseFloat(oud.wisselgeld)||0));
+  const oudQr=parseFloat(oud.qr)||0;
+
+  const nieuwCash=parseFloat(document.getElementById('inv-cash').value)||0;
+  const nieuwWissel=parseFloat(document.getElementById('inv-wissel').value)||0;
+  const nieuwQr=parseFloat(document.getElementById('inv-qr').value)||0;
+  const nieuwCashN=Math.max(0,nieuwCash-nieuwWissel);
+
   Object.assign(D.inkomsten[jaar][idx],{
-    cash:parseFloat(document.getElementById('inv-cash').value)||0,
-    wisselgeld:parseFloat(document.getElementById('inv-wissel').value)||0,
-    qr:parseFloat(document.getElementById('inv-qr').value)||0,
+    cash:nieuwCash, wisselgeld:nieuwWissel, qr:nieuwQr,
     tussendoor:parseFloat(document.getElementById('inv-td').value)||0,
     tussendoor_omsch:document.getElementById('inv-td-omsch').value,
     notities:document.getElementById('inv-notities').value
   });
-  save(); notif('Inkomsten opgeslagen ✓'); herlaad();
+
+  // Kasbalans automatisch bijwerken met het verschil
+  if (!D.kasbalans[jaar]) D.kasbalans[jaar]={cash:0,bank:0};
+  D.kasbalans[jaar].cash=(parseFloat(D.kasbalans[jaar].cash)||0)+(nieuwCashN-oudCashN);
+  D.kasbalans[jaar].bank=(parseFloat(D.kasbalans[jaar].bank)||0)+(nieuwQr-oudQr);
+
+  save(); notif('Inkomsten opgeslagen ✓ · kasbalans bijgewerkt'); herlaad();
 }
 
 function tekenEdities() {
