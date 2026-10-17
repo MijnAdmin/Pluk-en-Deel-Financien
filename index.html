@@ -302,13 +302,13 @@
         <div id="kb-overzicht"><div style="color:var(--grijs); font-style:italic; font-size:12px;">Nog geen gegevens.</div></div>
         <div>
           <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs); margin-bottom:10px;">Invoer</div>
-          <div class="vg" style="margin-bottom:8px;"><label>Cash (muntgeld + bankbiljetten)</label><input type="number" step="0.01" id="kb-cash" placeholder="0.00"></div>
-          <div class="vg" style="margin-bottom:10px;"><label>QR / bankrekening</label><input type="number" step="0.01" id="kb-bank" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:8px;"><label>Cash potje</label><input type="number" step="0.01" id="kb-cash" placeholder="0.00"></div>
+          <div class="vg" style="margin-bottom:10px;"><label>Bankrekening secretaris</label><input type="number" step="0.01" id="kb-bank" placeholder="0.00"></div>
           <button class="btn btn-p" onclick="slaKbOp()">Opslaan</button>
         </div>
       </div>
       <div style="background:var(--beige); border-radius:8px; padding:12px 18px; display:flex; justify-content:space-between; align-items:baseline;">
-        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs);">Totaal cash + bank</span>
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--grijs);">Totaal cash potje + bankrekening</span>
         <span style="font-family:'Fraunces',serif; font-size:22px; font-weight:300;" id="kb-totaal">€ 0,00</span>
       </div>
     </div>
@@ -651,7 +651,8 @@ function openUitgaveModal(id) {
     document.getElementById('uit-omsch').value=u.omschrijving||'';
     document.getElementById('uit-datum').value=u.datum||'';
     document.getElementById('uit-bedrag').value=u.bedrag||'';
-    document.getElementById('uit-bw').value=u.bw||'rek-gem';
+    const bwNorm = ['cash','bank'].includes(u.bw) ? u.bw : 'cash';
+    document.getElementById('uit-bw').value=bwNorm;
     document.getElementById('uit-notitie').value=u.notitie||'';
     document.getElementById('uit-jaar').value=u.jaar||jaar;
   } else {
@@ -659,7 +660,7 @@ function openUitgaveModal(id) {
     document.getElementById('uit-omsch').value='';
     document.getElementById('uit-datum').value=new Date().toISOString().slice(0,10);
     document.getElementById('uit-bedrag').value='';
-    document.getElementById('uit-bw').value='rek-gem';
+    document.getElementById('uit-bw').value='cash';
     document.getElementById('uit-notitie').value='';
     document.getElementById('uit-jaar').value=jaar;
   }
@@ -792,8 +793,8 @@ function tekenAfrekening() {
   // Kasbalans overzicht
   const kbOv=document.getElementById('kb-overzicht');
   const kbRijen=[
-    kb.cash ? `<div class="ov-rij"><span class="olabel">Cash</span><span>${eur(kb.cash)}</span></div>` : '',
-    kb.bank ? `<div class="ov-rij"><span class="olabel">QR / Bankrekening</span><span>${eur(kb.bank)}</span></div>` : '',
+    kb.cash ? `<div class="ov-rij"><span class="olabel">Cash potje</span><span>${eur(kb.cash)}</span></div>` : '',
+    kb.bank ? `<div class="ov-rij"><span class="olabel">Bankrekening secretaris</span><span>${eur(kb.bank)}</span></div>` : '',
   ].join('');
   kbOv.innerHTML = kbRijen || '<div style="color:var(--grijs);font-style:italic;font-size:12px;">Nog geen gegevens.</div>';
 
