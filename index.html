@@ -312,6 +312,12 @@
         <span style="font-family:'Fraunces',serif; font-size:22px; font-weight:300;" id="kb-totaal">€ 0,00</span>
       </div>
     </div>
+
+    <!-- Eindafrekening -->
+    <div class="ea-kaart" id="afr-eind">
+      <h3>📋 Eindafrekening <span id="afr-jaar-label"></span></h3>
+      <div id="afr-eindinhoud"></div>
+    </div>
   </div>
 
   <!-- INSTELLINGEN -->
@@ -829,6 +835,26 @@ function tekenAfrekening() {
   document.getElementById('afr-uitlijst').innerHTML = uitHtml;
   document.getElementById('afr-verm').textContent = eur(verm);
 
+  // Eindafrekening
+  document.getElementById('afr-jaar-label').textContent = jaar;
+  const beginstand = restant(jaar);
+  const totInkomen = totInk(jaar);
+  const totUitgaven = totUit(jaar);
+  const totGiften = totGd(jaar);
+  const overNaarVolgend = verm - totGiften;
+  document.getElementById('afr-eindinhoud').innerHTML = `
+    <div class="ov-rij"><span class="olabel">Beginstand (overgedragen)</span><span>${eur(beginstand)}</span></div>
+    <div class="ov-rij"><span class="olabel">+ Totaal inkomsten</span><span style="color:var(--groen-mid)">${eur(totInkomen)}</span></div>
+    <div class="ov-rij"><span class="olabel">− Totaal uitgaven</span><span style="color:var(--rood)">${eur(totUitgaven)}</span></div>
+    <div class="ov-rij tot"><span>= Beschikbaar vermogen</span><span class="owaarde pos">${eur(verm)}</span></div>
+    <hr style="border:none;border-top:1px solid var(--beige-dark);margin:10px 0">
+    <div class="ov-rij"><span class="olabel">− Naar goede doelen</span><span style="color:var(--rood)">${eur(totGiften)}</span></div>
+    <div class="ov-rij tot" style="background:var(--beige);border-radius:8px;padding:8px 12px;margin-top:6px">
+      <span>→ Over naar volgend jaar</span>
+      <span style="font-family:'Fraunces',serif;font-size:20px;color:var(--groen-mid)">${eur(overNaarVolgend)}</span>
+    </div>
+  `;
+
   // Goede doelen lijst
   const gdLijst=document.getElementById('gd-lijst');
   if (!gdl.length) {
@@ -994,6 +1020,7 @@ document.querySelectorAll('.modal-overlay').forEach(m=>{
 function herlaad() {
   jaarBalken(); vulSelects();
   tekenEdities(); tekenUitgaven(); tekenOverzicht(); tekenBanner();
+  if (document.getElementById('tab-afrekening')?.classList.contains('actief')) tekenAfrekening();
 }
 
 // ════════════════════════════════
