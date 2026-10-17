@@ -150,6 +150,43 @@
     .ov-kaarten { grid-template-columns: 1fr; }
     header nav { margin-left: 0; width: 100%; }
   }
+
+  .mens-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .mens-zoek { flex:1; min-width:180px; }
+  .mens-zoek input { width:100%; background:var(--wit); border:1px solid var(--beige-dark); border-radius:8px; padding:9px 14px; font-family:'DM Mono',monospace; font-size:13px; }
+  .cat-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .cat-tab { padding:6px 14px; border-radius:20px; border:1px solid var(--beige-dark); background:var(--wit); font-family:'DM Mono',monospace; font-size:11.5px; cursor:pointer; color:var(--tekst); transition:all .15s; white-space:nowrap; }
+  .cat-tab .n { opacity:.55; margin-left:4px; }
+  .cat-tab:hover { border-color:var(--groen-licht); }
+  .cat-tab.actief { background:var(--groen); color:#fff; border-color:var(--groen); }
+  .mens-stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .mstat { background:var(--wit); border:1px solid var(--beige-dark); border-radius:8px; padding:8px 14px; font-size:11px; color:var(--grijs); }
+  .mstat b { font-family:'Fraunces',serif; font-size:15px; color:var(--groen); display:block; font-weight:500; }
+  .mstat.warn b { color:var(--rood); }
+  .check-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--goud); margin-right:6px; vertical-align:middle; }
+  tr.te-checken td:first-child { border-left:3px solid var(--goud); }
+  tr.historisch { opacity:.6; }
+  .mens-naam { font-weight:500; }
+  .mens-sub { font-size:10.5px; color:var(--grijs); }
+  .cat-badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; background:var(--beige); color:var(--grijs); white-space:nowrap; }
+  .dup-groep { background:var(--goud-licht); border:1px solid #e8d8a0; border-radius:10px; padding:14px 18px; margin-bottom:12px; }
+  .dup-groep h4 { font-family:'Fraunces',serif; font-size:13px; color:var(--goud); margin-bottom:8px; }
+  .dup-rij { font-size:12px; padding:4px 0; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .export-menu { position:relative; display:inline-block; }
+  .export-drop { display:none; position:absolute; top:calc(100% + 4px); left:0; background:var(--wit); border:1px solid var(--beige-dark); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.12); z-index:50; min-width:230px; overflow:hidden; }
+  .export-drop.open { display:block; }
+  .export-drop button { display:block; width:100%; text-align:left; padding:10px 16px; background:none; border:none; font-family:'DM Mono',monospace; font-size:12px; cursor:pointer; color:var(--tekst); }
+  .export-drop button:hover { background:var(--beige); }
+  @media print {
+    header, .mens-toolbar, .cat-tabs, .mens-stats, .btn, .sectie-header button, .export-menu { display:none !important; }
+    body { background:#fff; }
+    .container { padding:0; max-width:100%; }
+  }
+  .rol-checks { display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:6px; }
+  .rol-checks label, .vg .plain-label { display:flex; align-items:center; gap:6px; text-transform:none; font-size:12.5px; font-weight:normal; color:var(--tekst); }
+  .status2026-select { font-family:'DM Mono',monospace; font-size:10.5px; border-radius:6px; padding:5px 6px; border:1px solid var(--beige-dark); background:var(--wit); width:100%; }
+  .status2026-select.st-bevestigd { background:#e8f5dc; border-color:var(--groen-licht); color:var(--groen-mid); }
+  .status2026-select.st-geen-2026 { background:var(--goud-licht); border-color:#e0d49a; color:var(--goud); }
 </style>
 </head>
 <body>
@@ -159,6 +196,7 @@
   <div class="jaar-tag" id="jaar-tag">Financiën</div>
   <nav>
     <button class="actief" onclick="toonTab('overzicht')">Overzicht</button>
+    <button onclick="toonTab('mensen')">Mensen</button>
     <button onclick="toonTab('inkomsten')">Verkoopmomenten</button>
     <button onclick="toonTab('uitgaven')">Uitgaven</button>
     <button onclick="toonTab('afrekening')">Afrekening</button>
@@ -200,6 +238,55 @@
       <div class="ov-kaart"><h3>Uitgaven dit jaar</h3><div id="ov-uit"></div></div>
     </div>
     <div class="ov-kaart" style="margin-bottom:20px;"><h3>Alle jaren</h3><div id="ov-jaren"></div></div>
+  </div>
+
+  <!-- MENSEN -->
+  <div class="tab-content" id="tab-mensen">
+    <div class="sectie-header">
+      <div class="sectie-titel">Mensen</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-goud btn-k" onclick="toonDubbelingen()">🔍 Dubbelingen checken</button>
+        <div class="export-menu">
+          <button class="btn btn-s btn-k" onclick="toggleExportMenu()">⬇ Exporteren ▾</button>
+          <div class="export-drop" id="export-drop">
+            <button onclick="doExport('txt')">📄 Naam + e-mail (.txt)</button>
+            <button onclick="doExport('bcc')">✉️ BCC-lijst (.txt)</button>
+            <button onclick="doExport('tel')">📱 Telefoonlijst mobiel/vast (.txt)</button>
+            <button onclick="doExport('csv')">📊 Volledige lijst (.csv)</button>
+            <button onclick="doExport('2026')">📋 2026-voortgangsoverzicht (.txt)</button>
+          </div>
+        </div>
+        <button class="btn btn-s btn-k" onclick="window.print()">🖨 Printen</button>
+        <button class="btn btn-p" onclick="openPersoonModal()">+ Nieuw contact</button>
+      </div>
+    </div>
+
+    <div class="mens-stats" id="mens-stats"></div>
+    <div class="cat-tabs" id="cat-tabs"></div>
+
+    <div class="mens-toolbar">
+      <div class="mens-zoek"><input type="text" id="mens-zoek" placeholder="Zoek op naam, e-mail, telefoon, adres of opmerking..." oninput="tekenMensen()"></div>
+      <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--grijs); white-space:nowrap;">
+        <input type="checkbox" id="mens-alleen-checken" onchange="tekenMensen()"> alleen "te checken"
+      </label>
+      <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--grijs); white-space:nowrap;">
+        <input type="checkbox" id="mens-zonder-email" onchange="tekenMensen()"> zonder e-mail
+      </label>
+      <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--grijs); white-space:nowrap;">
+        Status 2026:
+        <select id="mens-status2026-filter" onchange="tekenMensen()" style="font-family:'DM Mono',monospace; font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--beige-dark);">
+          <option value="">Alle</option>
+          <option value="bevestigd">Bevestigd</option>
+          <option value="geen-2026">Contact gehad — doet niet mee</option>
+          <option value="onbekend">Nog geen contact</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="tabel-wrap">
+      <table><thead><tr><th>Naam</th><th>Rollen</th><th>Contact</th><th>Status / opmerking</th><th>Status 2026</th><th></th></tr></thead>
+      <tbody id="mens-tabel"></tbody></table>
+    </div>
   </div>
 
   <!-- INKOMSTEN -->
@@ -419,6 +506,65 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="m-persoon">
+  <div class="modal">
+    <h2 id="m-pers-titel">Nieuw contact</h2>
+    <div class="vg" style="margin-bottom:12px;"><label>Naam</label><input type="text" id="pers-naam" placeholder="Voor- en achternaam"></div>
+    <div class="vg" style="margin-bottom:12px;">
+      <label>Rollen (meerdere mogelijk)</label>
+      <div class="rol-checks">
+        <label><input type="checkbox" class="pers-rol" value="tuin"> Tuin</label>
+        <label><input type="checkbox" class="pers-rol" value="plukker"> Plukker</label>
+        <label><input type="checkbox" class="pers-rol" value="schiller"> Schiller/koker</label>
+        <label><input type="checkbox" class="pers-rol" value="verkoper"> Verkoper</label>
+        <label><input type="checkbox" class="pers-rol" value="geinteresseerd"> Andere geïnteresseerde</label>
+        <label><input type="checkbox" class="pers-rol" value="korenhof-coa"> Korenhof &amp; COA</label>
+      </div>
+    </div>
+    <div class="vrij" style="margin-bottom:12px;">
+      <div class="vg"><label>Te checken?</label>
+        <select id="pers-techecken"><option value="nee">Nee</option><option value="ja">Ja</option></select>
+      </div>
+      <div class="vg"><label>Status 2026</label>
+        <select id="pers-status2026">
+          <option value="">Nog geen contact</option>
+          <option value="bevestigd">Bevestigd — doet mee</option>
+          <option value="geen-2026">Contact gehad — doet (nu) niet mee</option>
+        </select>
+      </div>
+    </div>
+    <div class="vrij" style="margin-bottom:12px;">
+      <div class="vg"><label>E-mail</label><input type="text" id="pers-email" placeholder="naam@voorbeeld.nl"></div>
+      <div class="vg"><label>Telefoon</label><input type="text" id="pers-telefoon" placeholder="06-..."></div>
+    </div>
+    <div class="vrij" style="margin-bottom:12px;">
+      <div class="vg"><label>Adres</label><input type="text" id="pers-adres" placeholder="optioneel"></div>
+      <div class="vg"><label>Plaats</label><input type="text" id="pers-plaats" placeholder="optioneel"></div>
+    </div>
+    <div class="vg" style="margin-bottom:12px;"><label>Status</label><input type="text" id="pers-status" placeholder="bijv. mag plukken, wordt benaderd..."></div>
+    <div class="vg" style="margin-bottom:12px;">
+      <label class="plain-label"><input type="checkbox" id="pers-historisch" onchange="toggleRedenVeld()"> Historisch (niet meer actief — overleden, verhuisd, geen bomen, etc.)</label>
+    </div>
+    <div class="vg" id="pers-reden-wrap" style="margin-bottom:12px; display:none;"><label>Reden</label><input type="text" id="pers-reden" placeholder="bijv. verhuisd, overleden, afgemeld..."></div>
+    <div class="vg" style="margin-bottom:4px;"><label>Opmerkingen</label><textarea id="pers-opmerkingen" rows="3" placeholder="optioneel"></textarea></div>
+    <div class="m-act">
+      <button class="btn btn-g" id="pers-verwijder-btn" onclick="verwijderPersoonUitModal()" style="margin-right:auto;">🗑 Verwijderen</button>
+      <button class="btn btn-s" onclick="sluitModal('m-persoon')">Annuleren</button>
+      <button class="btn btn-p" onclick="slaPersoonOp()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-dubbel">
+  <div class="modal" style="width:600px;">
+    <h2>Mogelijke dubbelingen</h2>
+    <div id="dubbel-inhoud"></div>
+    <div class="m-act">
+      <button class="btn btn-s" onclick="sluitModal('m-dubbel')">Sluiten</button>
+    </div>
+  </div>
+</div>
+
 <div class="notif" id="notif"></div>
 
 <script>
@@ -439,6 +585,16 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 let D = load();
 let jaar = D.huidigJaar;
 let aktEditie = null, bewEditie = null, bewUitgave = null, bewGd = null;
+
+const CAT_LABEL = {
+  'tuin':'Tuin', 'plukker':'Plukker', 'schiller':'Schiller/koker', 'verkoper':'Verkoper',
+  'geinteresseerd':'Geïnteresseerde', 'korenhof-coa':'Korenhof & COA', 'historisch':'Historisch'
+};
+const ROLE_ORDE = ['tuin','plukker','schiller','verkoper','geinteresseerd','korenhof-coa'];
+const STATUS2026_LABEL = { '':'Nog geen contact', 'bevestigd':'Bevestigd', 'geen-2026':'Contact gehad — doet niet mee' };
+
+let mensCategorie = 'alle-actief';
+let bewPersoon = null;
 
 // ════════════════════════════════
 // BEREKENINGEN
@@ -516,11 +672,12 @@ function toonTab(naam) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('actief'));
   document.querySelectorAll('header nav button').forEach(b=>b.classList.remove('actief'));
   document.getElementById('tab-'+naam).classList.add('actief');
-  const idx=['overzicht','inkomsten','uitgaven','afrekening','instellingen'].indexOf(naam);
+  const idx=['overzicht','mensen','inkomsten','uitgaven','afrekening','instellingen'].indexOf(naam);
   document.querySelectorAll('header nav button')[idx]?.classList.add('actief');
   if (naam!=='inkomsten') sluitDetail();
   if (naam==='afrekening') tekenAfrekening();
   if (naam==='instellingen') laadRestant();
+  if (naam==='mensen') tekenMensen();
 }
 
 // ════════════════════════════════
@@ -1007,6 +1164,410 @@ function verwijderAlles() {
 }
 
 // ════════════════════════════════
+// MENSEN
+// ════════════════════════════════
+const MENSEN_SEED = [{"naam": "Gretha Kuipers", "categorie": "tuin", "adres": "Kruisstraat 23", "plaats": "Zweeloo", "email": "gretha.kuipers@kuipers2.nl", "telefoon": "(06) 12 44 28 84", "status": "Mag plukken (bevestigd 2018)", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Nico (Westerhuis) en Tineke", "categorie": "tuin", "adres": "Kruisstraat 13", "plaats": "Zweeloo", "email": "westerhuisn@gmail.com", "telefoon": "(0591) 37 14 44 / (06) 20 49 82 65", "status": "Mag plukken (bevestigd 2018)", "wieBenadert": "", "teChecken": true, "opmerkingen": "Mogelijk Tineke de Roosz (tinekedeRoosz@gmail.com) — checken of dit dezelfde 'Tineke' is.", "reden": "", "bevestigd2026": false}, {"naam": "Jan Berghuis", "categorie": "tuin", "adres": "Klooster 3", "plaats": "", "email": "", "telefoon": "", "status": "Benaderd door Margreet — met vakantie, wacht op reactie", "wieBenadert": "Margreet", "teChecken": true, "opmerkingen": "Mogelijk familie van Gert Berghuis. Let op: oude lijst noemt 'Klooster 1' i.p.v. 'Klooster 3' — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Floris en Gert (voorheen Joop Zwiep en Ria)", "categorie": "tuin", "adres": "Kruisstraat 21", "plaats": "", "email": "", "telefoon": "0591-37 18 57 (oud nummer vorige bewoners)", "status": "Nieuwe bewoners — nog niet benaderd", "wieBenadert": "", "teChecken": true, "opmerkingen": "Navragen of hier nog geplukt mag worden.", "reden": "", "bevestigd2026": false}, {"naam": "Jan en Anneke Karst", "categorie": "tuin", "adres": "Oud Aalden 13", "plaats": "Oud Aalden", "email": "jktamminga@gmail.com", "telefoon": "", "status": "Wordt benaderd", "wieBenadert": "Trees", "teChecken": true, "opmerkingen": "E-mail wijkt af van naam Karst — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Jan Vrijlandt", "categorie": "tuin", "adres": "Oud Aalden 17", "plaats": "Oud Aalden", "email": "", "telefoon": "", "status": "Wordt benaderd", "wieBenadert": "Trees (?)", "teChecken": true, "opmerkingen": "Checken wie dit oppakt.", "reden": "", "bevestigd2026": false}, {"naam": "Familie Kunen", "categorie": "tuin", "adres": "Oud Aalden 22", "plaats": "Oud Aalden", "email": "", "telefoon": "", "status": "Wordt benaderd", "wieBenadert": "Trees (?)", "teChecken": true, "opmerkingen": "Mogelijk getrouwde naam 'Suk' — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Geertje Schieven(g)", "categorie": "tuin", "adres": "Klooster 42", "plaats": "", "email": "", "telefoon": "0591-37 18 36", "status": "Waarschijnlijk niet actief dit jaar", "wieBenadert": "Willy-Anne", "teChecken": true, "opmerkingen": "Navragen of dit nog klopt.", "reden": "", "bevestigd2026": false}, {"naam": "Fam vd A", "categorie": "tuin", "adres": "Hoofdstraat 26B", "plaats": "", "email": "", "telefoon": "06-37 348 839", "status": "Mag plukken (2016), 1 boom", "wieBenadert": "", "teChecken": true, "opmerkingen": "Volledige naam nog onbekend.", "reden": "", "bevestigd2026": false}, {"naam": "Ed en Corina", "categorie": "tuin", "adres": "De Wheem (tegenover de smid)", "plaats": "", "email": "", "telefoon": "", "status": "Mag plukken (2016)", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dit dezelfde is als Corine Bossenbroek (Plukkers).", "reden": "", "bevestigd2026": false}, {"naam": "Henk Vaessen", "categorie": "tuin", "adres": "De Wheem 6", "plaats": "", "email": "", "telefoon": "0591-37 70 14", "status": "In 2015 niet actief — status dit jaar onbekend", "wieBenadert": "", "teChecken": true, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Anne-Marie en Piet", "categorie": "tuin", "adres": "Klooster 17-19", "plaats": "", "email": "", "telefoon": "", "status": "Mag plukken (2016)", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dit dezelfde is als Anne-Marie Pieters (Verkopers).", "reden": "", "bevestigd2026": false}, {"naam": "Janet Emmelkamp & Riet Okken", "categorie": "tuin", "adres": "Klooster 29", "plaats": "", "email": "emmelkampjanet@gmail.com", "telefoon": "0591-79 51 69", "status": "Niet actief in 2016 — status dit jaar onbekend", "wieBenadert": "", "teChecken": true, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Martin Abbing", "categorie": "tuin", "adres": "Gelpenberg 17A", "plaats": "", "email": "m.abbing50@icloud.com", "telefoon": "0591-37 22 21", "status": "Mag plukken (bevestigd, aangemeld 2016)", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Theo van Nieuwenhuizen", "categorie": "tuin", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "Onbekend", "wieBenadert": "", "teChecken": true, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "R. Wilms", "categorie": "tuin", "adres": "Korenhof 29", "plaats": "Aalden", "email": "", "telefoon": "371343 (vermoedelijk 0591-37 13 43)", "status": "Onbekend — mogelijk Korenhof-locatie i.p.v. tuin", "wieBenadert": "", "teChecken": true, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Liniy Schrik", "categorie": "plukker", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Aanwezig bij plukdagen en schillen Korenhof (2022).", "reden": "", "bevestigd2026": false}, {"naam": "Iris Jansen", "categorie": "plukker", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 31 31 30 18", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Oud e-mailadres irisgj@ziggo.nl bounced bij oproepmail 2026 — geen ander adres bekend.", "reden": "", "bevestigd2026": false}, {"naam": "Corine Bossenbroek", "categorie": "plukker", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Mogelijk dezelfde als Ed en Corina (Tuinen). Nathalie appt haar rechtstreeks.", "reden": "", "bevestigd2026": false}, {"naam": "Wim Wehrens", "categorie": "plukker", "adres": "", "plaats": "", "email": "wehrens.w@xs4all.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dezelfde als Wim Maats (Verkopers).", "reden": "", "bevestigd2026": false}, {"naam": "Els Collignon", "categorie": "plukker", "adres": "", "plaats": "", "email": "westersteeg@home.nl", "telefoon": "06-81804707", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Karla Blom", "categorie": "plukker", "adres": "", "plaats": "", "email": "karlablom@gmail.com", "telefoon": "06-24982139 (Signal)", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Robert vd Helm", "categorie": "plukker", "adres": "", "plaats": "", "email": "RobertvanderHelm72@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Nicandra", "categorie": "plukker", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Naam onduidelijk, geen contactgegevens.", "reden": "", "bevestigd2026": false}, {"naam": "Beatrix (Copier?)", "categorie": "schiller", "adres": "", "plaats": "", "email": "beatrix.c54@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Oud adres beacop@ziggo.nl bounced bij oproepmail 2026 — overgestapt op dit adres.", "reden": "", "bevestigd2026": false}, {"naam": "Cindy (de Boer?)", "categorie": "schiller", "adres": "", "plaats": "", "email": "cindydeboer1975@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Achternaam afgeleid uit e-mailadres — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Rachael", "categorie": "schiller", "adres": "", "plaats": "", "email": "rachael@jw10.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Achternaam onbekend.", "reden": "", "bevestigd2026": false}, {"naam": "Yolande Karsten-Meekel", "categorie": "schiller", "adres": "", "plaats": "", "email": "yolandekarsten_meekel@hotmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Trieneke Veltman", "categorie": "schiller", "adres": "", "plaats": "", "email": "trieneke15@gmail.com", "telefoon": "(0591) 37 17 02 / 06 30936703 (Signal)", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Oud adres trienekeveltman@hetnet.nl bounced — verwijderd.", "reden": "", "bevestigd2026": false}, {"naam": "Anneke Nycolaas", "categorie": "schiller", "adres": "", "plaats": "", "email": "anneke.nycolaas@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Diane Schuiling", "categorie": "schiller", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Geen contactgegevens bekend. Nathalie appt haar.", "reden": "", "bevestigd2026": false}, {"naam": "Bertha Huberts", "categorie": "schiller", "adres": "", "plaats": "", "email": "", "telefoon": "0591-37 73 72", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Madeleine Beaumont (Meppen)", "categorie": "verkoper", "adres": "", "plaats": "", "email": "madeleine.beaumont@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Annemarie (Bos-Spaargaren?)", "categorie": "verkoper", "adres": "", "plaats": "", "email": "A.bos.spaargaren@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Achternaam afgeleid uit e-mailadres — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Anneke vd Lans", "categorie": "verkoper", "adres": "", "plaats": "", "email": "anneke@ceesvanderlans.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Thijmen", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Geen contactgegevens.", "reden": "", "bevestigd2026": false}, {"naam": "Trieneke", "categorie": "verkoper", "adres": "", "plaats": "", "email": "trieneke15@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zie samengevoegde regel bij Schillers en kokers.", "reden": "", "bevestigd2026": false}, {"naam": "Rina", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Geen contactgegevens.", "reden": "", "bevestigd2026": false}, {"naam": "Anneke Schuurmans", "categorie": "verkoper", "adres": "", "plaats": "", "email": "ancmschuurmans@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Mientje (en Henk) Harmsen-Heersink", "categorie": "verkoper", "adres": "", "plaats": "", "email": "harmsenheersink@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Verzendlijst 2018 had ander adres (harmsen-heersink@ziggo.nl) — checken welk adres klopt.", "reden": "", "bevestigd2026": false}, {"naam": "Anne Tromp", "categorie": "verkoper", "adres": "", "plaats": "", "email": "annetromprijswijk@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Gretha Attema", "categorie": "verkoper", "adres": "", "plaats": "", "email": "gretha@attema.org", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Niet dezelfde als Gretha Kuipers (Tuinen).", "reden": "", "bevestigd2026": false}, {"naam": "Titia Bokje", "categorie": "verkoper", "adres": "", "plaats": "", "email": "j.t.bokje@outlook.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Verzendlijst 2018 had ander adres (j.bokje3@kpnplanet.nl) — checken.", "reden": "", "bevestigd2026": false}, {"naam": "Anne-Marie Pieters (Piters de Wolf)", "categorie": "verkoper", "adres": "", "plaats": "", "email": "amdewolff@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dezelfde als tuin 'Anne-Marie en Piet' (Klooster 17-19).", "reden": "", "bevestigd2026": false}, {"naam": "Aaldert en Anke Kamman", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 22 53 63 25", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Oud adres famkamman@ziggo.nl bounced bij oproepmail 2026 — geen ander adres bekend.", "reden": "", "bevestigd2026": false}, {"naam": "Martine Ponstein", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dezelfde Martine als Coop-contact. Nathalie appt haar.", "reden": "", "bevestigd2026": false}, {"naam": "Hennie en Hilly van Wagensveld", "categorie": "verkoper", "adres": "", "plaats": "", "email": "hennie6b@kpnmail.nl", "telefoon": "(06) 45 28 88 41", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Hilbrand Hut", "categorie": "verkoper", "adres": "", "plaats": "", "email": "hillehut@planet.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Dineke Renting", "categorie": "verkoper", "adres": "", "plaats": "", "email": "dinekerenting08@gmail.com", "telefoon": "(0591) 37 21 36 / (06) 52 54 36 41", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Ook contact voor Korenhof dagbesteding.", "reden": "", "bevestigd2026": false}, {"naam": "Erik en Anke Pepping", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 53 93 78 41", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Oud adres familie.pepping@ziggo.nl bounced bij oproepmail 2026 — geen ander adres bekend.", "reden": "", "bevestigd2026": false}, {"naam": "Hanne van Bruggen", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "(0591) 37 19 18", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Oud adres j.m.vanbruggen@hetnet.nl bounced bij oproepmail 2026 — geen ander adres bekend.", "reden": "", "bevestigd2026": false}, {"naam": "Liesbeth de Boer", "categorie": "verkoper", "adres": "", "plaats": "", "email": "elmariadeboer@hetnet.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Op oude lijst ook 'Liesbeth Pauw' — checken of dezelfde persoon.", "reden": "", "bevestigd2026": false}, {"naam": "Jansje (en Roelof) Brands", "categorie": "verkoper", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 51 23 09 24", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Oud adres roelofenjansje@ziggo.nl bounced bij oproepmail 2026 — geen ander adres bekend.", "reden": "", "bevestigd2026": false}, {"naam": "Trudy van der Meeren", "categorie": "verkoper", "adres": "", "plaats": "", "email": "Trudy@vdmeeren.com", "telefoon": "(06) 25 00 73 41", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Willeke Heederik", "categorie": "verkoper", "adres": "", "plaats": "", "email": "willeke.heederik@gmail.com", "telefoon": "(0591) 37 26 03", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Jan en Marja de Groot", "categorie": "verkoper", "adres": "", "plaats": "", "email": "juvi@ziggo.nl", "telefoon": "(06) 23 85 41 43", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Willy-Anne Stiphout", "categorie": "verkoper", "adres": "", "plaats": "", "email": "willy_anne@me.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Tot nu toe voorzitter; heeft alle documenten aan Nathalie gegeven. Wil mogelijk weer helpen met koken.", "reden": "", "bevestigd2026": false}, {"naam": "Wim Maats", "categorie": "verkoper", "adres": "", "plaats": "", "email": "wim.maats@home.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Checken of dezelfde Wim als Wim Wehrens (Plukkers).", "reden": "", "bevestigd2026": false}, {"naam": "Carin", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "carinchorus@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Vaste groep.", "reden": "", "bevestigd2026": false}, {"naam": "Trieneke", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "trieneke15@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zie samengevoegde regel bij Schillers en kokers.", "reden": "", "bevestigd2026": false}, {"naam": "Florian Bobbe", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "E-mailadres Florianbobbe@msn.nl bounced bij oproepmail 2026 — geen ander adres of telefoonnummer bekend, navragen.", "reden": "", "bevestigd2026": false}, {"naam": "Yolande Karsten-Meekel", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "yolandekarsten_meekel@hotmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zie samengevoegde regel bij Schillers en kokers.", "reden": "", "bevestigd2026": false}, {"naam": "Bas Ruizevelddewinter", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "basruizevelddewinter@planet.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Derry(ie) Schaaf", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "derri99@hotmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "", "reden": "", "bevestigd2026": false}, {"naam": "Martin Abbing", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "m.abbing50@icloud.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zie ook Tuinen (Gelpenberg 17A).", "reden": "", "bevestigd2026": false}, {"naam": "Nico (Westerhuis) en Tineke", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "westerhuisn@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zie samengevoegde regel bij Tuinen (Kruisstraat 13).", "reden": "", "bevestigd2026": false}, {"naam": "Hubi de Gast", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Contactpersoon bij de Coop. Nathalie appt hem/haar.", "reden": "", "bevestigd2026": false}, {"naam": "Marja Hendriksen", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "marja@hendriksen.eu", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Telefoonnummer onduidelijk. Checken of andere persoon dan Jan en Marja de Groot (Verkopers).", "reden": "", "bevestigd2026": false}, {"naam": "Liz Noordman", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "l.noordman@hetnet.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Rol onbekend. Checken of dezelfde persoon als Mary Noordman (Historisch). Voorheen in de losse categorie 'Verzendlijst 2018' (rol onbekend).", "reden": "", "bevestigd2026": false}, {"naam": "Tineke de Roosz", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "tinekedeRoosz@gmail.com", "telefoon": "(06) 19 76 04 50", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Mogelijk 'Tineke' van tuin Kruisstraat 13 — checken. Voorheen in de losse categorie 'Verzendlijst 2018' (rol onbekend).", "reden": "", "bevestigd2026": false}, {"naam": "Trees Kool", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "tamkowo@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "= Trees uit de vaste groep. Voorheen in de losse categorie 'Verzendlijst 2018' (rol onbekend).", "reden": "", "bevestigd2026": false}, {"naam": "Gert Berghuis", "categorie": "geinteresseerd", "adres": "", "plaats": "", "email": "gertberghuis@outlook.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Mogelijk familie van Jan Berghuis (Tuinen) — checken. Voorheen in de losse categorie 'Verzendlijst 2018' (rol onbekend).", "reden": "", "bevestigd2026": false}, {"naam": "Minie van der Kooij", "categorie": "korenhof-coa", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 52 54 36 41 / 088 796 88 80", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Contactpersoon Korenhof dagbesteding.", "reden": "", "bevestigd2026": false}, {"naam": "Harma Stoffers", "categorie": "korenhof-coa", "adres": "", "plaats": "", "email": "", "telefoon": "(06) 26 79 47 74", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Contactpersoon Korenhof dagbesteding (privé).", "reden": "", "bevestigd2026": false}, {"naam": "Marijn Weve", "categorie": "korenhof-coa", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Contactpersoon Korenhof (gecorrigeerd door Nathalie — eerder abusievelijk genoteerd als Coop-contact).", "reden": "", "bevestigd2026": false}, {"naam": "Doesjka Bergsma", "categorie": "korenhof-coa", "adres": "", "plaats": "", "email": "DoesjkaBergsma@coa.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Contactpersoon COA.", "reden": "", "bevestigd2026": false}, {"naam": "Marjolein Lensen", "categorie": "korenhof-coa", "adres": "", "plaats": "", "email": "MarjoleinLensen@coa.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": true, "opmerkingen": "Contactpersoon COA. Checken wie nu de juiste COA-contactpersoon is (zie ook Doesjka Bergsma).", "reden": "", "bevestigd2026": false}, {"naam": "Ton van den Oever", "categorie": "historisch", "adres": "", "plaats": "", "email": "", "telefoon": "0591-22 40 23", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Stond in Tuinen (Markstraat 3).", "reden": "Geen appelbomen", "bevestigd2026": false}, {"naam": "Onbekend (voorheen fam. Waarders)", "categorie": "historisch", "adres": "Oud Aalden 16", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Voormalige huurders wonen er vermoedelijk niet meer; huidige bewoners onbekend.", "reden": "Adres verwijderd", "bevestigd2026": false}, {"naam": "Jan en Margje Warmolts", "categorie": "historisch", "adres": "", "plaats": "", "email": "jan.warmolts@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Stond in Tuinen (Hoofdstraat 14, 'de Kniephof').", "reden": "Jan overleden, Margje verhuisd", "bevestigd2026": false}, {"naam": "GertJan van Olst", "categorie": "historisch", "adres": "", "plaats": "", "email": "", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Alleen genoemd als 'p.m.' op oude lijst, verder geen gegevens.", "reden": "Verwijderd", "bevestigd2026": false}, {"naam": "Marijke van den Oever", "categorie": "historisch", "adres": "", "plaats": "", "email": "m.oever42@ziggo.nl", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Was schiller/verkoper.", "reden": "Overleden", "bevestigd2026": false}, {"naam": "Joris", "categorie": "historisch", "adres": "", "plaats": "", "email": "jvst@staapro.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zakelijk contact, Staapro.", "reden": "Verhuisd", "bevestigd2026": false}, {"naam": "Lucie de Witte (Staapro)", "categorie": "historisch", "adres": "", "plaats": "", "email": "ldwi@staapro.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Zakelijk contact, Staapro.", "reden": "Verhuisd", "bevestigd2026": false}, {"naam": "Gerda Sijssens", "categorie": "historisch", "adres": "", "plaats": "", "email": "g.j.sijssens@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Was verkoper.", "reden": "Verhuisd", "bevestigd2026": false}, {"naam": "Mary Noordman", "categorie": "historisch", "adres": "", "plaats": "", "email": "mpnoordman2@gmail.com", "telefoon": "", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Heeft gereageerd op oproepmail 2026: kan dit jaar niet meehelpen.", "reden": "Afgemeld voor 2026", "bevestigd2026": false}, {"naam": "Gealma Snippe", "categorie": "historisch", "adres": "", "plaats": "", "email": "hsga.snippe@ziggo.nl", "telefoon": "06-38055747", "status": "", "wieBenadert": "", "teChecken": false, "opmerkingen": "Heeft laten weten dat ze dit jaar overslaat.", "reden": "Slaat dit jaar over", "bevestigd2026": false}];
+
+function zorgMensenData() {
+  if (!D.mensen) D.mensen = [];
+  if (!D.mensenSeeded) {
+    MENSEN_SEED.forEach(m => D.mensen.push(Object.assign({id:uid(), bijgewerkt:''}, m)));
+    D.mensenSeeded = true;
+    save();
+  }
+  if (!D.dubbelNegeren) D.dubbelNegeren = [];
+
+  let gewijzigd = false;
+
+  D.mensen.forEach(m => {
+    if (!Array.isArray(m.categorieen)) {
+      if (m.categorie === 'historisch') {
+        m.categorieen = [];
+        m.historisch = true;
+      } else if (m.categorie === 'verzendlijst-2018') {
+        m.categorieen = ['geinteresseerd'];
+        const note = "Voorheen in de losse categorie 'Verzendlijst 2018' (rol onbekend).";
+        if (!(m.opmerkingen||'').includes(note)) m.opmerkingen = ((m.opmerkingen||'') + ' ' + note).trim();
+        m.historisch = false;
+      } else if (m.categorie) {
+        m.categorieen = [m.categorie];
+        m.historisch = false;
+      } else {
+        m.categorieen = [];
+        m.historisch = !!m.historisch;
+      }
+      delete m.categorie;
+      gewijzigd = true;
+    }
+    if (typeof m.historisch === 'undefined') { m.historisch = false; gewijzigd = true; }
+    if (typeof m.status2026 === 'undefined') {
+      m.status2026 = m.bevestigd2026 ? 'bevestigd' : '';
+      gewijzigd = true;
+    }
+    if (typeof m.bevestigd2026 !== 'undefined') { delete m.bevestigd2026; gewijzigd = true; }
+  });
+
+  const groepen = {};
+  D.mensen.forEach(m => {
+    const e = normEmail(m.email);
+    if (e) { (groepen[e] = groepen[e] || []).push(m); }
+  });
+  Object.values(groepen).forEach(groep => {
+    if (groep.length < 2) return;
+    gewijzigd = true;
+    const hoofd = groep.reduce((a,b) => (b.naam||'').length > (a.naam||'').length ? b : a);
+    const rollen = new Set();
+    const opmerkingen = [];
+    let historisch = false, status2026 = '';
+    groep.forEach(p => {
+      (p.categorieen||[]).forEach(c=>rollen.add(c));
+      if (p.opmerkingen && !opmerkingen.includes(p.opmerkingen)) opmerkingen.push(p.opmerkingen);
+      if (p.historisch) historisch = true;
+      if (p.status2026 === 'bevestigd') status2026 = 'bevestigd';
+      else if (p.status2026 === 'geen-2026' && status2026 !== 'bevestigd') status2026 = 'geen-2026';
+    });
+    hoofd.categorieen = [...rollen];
+    hoofd.opmerkingen = opmerkingen.join(' ').trim();
+    hoofd.historisch = historisch;
+    hoofd.status2026 = status2026;
+    ['telefoon','adres','plaats','status','wieBenadert'].forEach(f => {
+      if (!hoofd[f]) { const alt = groep.find(p=>p[f]); if (alt) hoofd[f] = alt[f]; }
+    });
+    const idsTeVerwijderen = new Set(groep.filter(p=>p!==hoofd).map(p=>p.id));
+    D.mensen = D.mensen.filter(p => !idsTeVerwijderen.has(p.id));
+  });
+
+  if (gewijzigd) save();
+}
+
+function normEmail(e) { return (e||'').trim().toLowerCase(); }
+function normTel(t) { return (t||'').replace(/[^\d]/g,''); }
+function isMobiel(t) {
+  const n = normTel(t);
+  return /^06\d{8}$/.test(n) || /^316\d{8}$/.test(n);
+}
+
+function catTellingen() {
+  const t = {};
+  ROLE_ORDE.forEach(c=>t[c]=0);
+  D.mensen.forEach(m=>{ if (!m.historisch) (m.categorieen||[]).forEach(c=>{ t[c]=(t[c]||0)+1; }); });
+  return t;
+}
+
+function tekenCatTabs() {
+  const t = catTellingen();
+  const totActief = D.mensen.filter(m=>!m.historisch).length;
+  const totHist = D.mensen.filter(m=>m.historisch).length;
+  const el = document.getElementById('cat-tabs');
+  if (!el) return;
+  let html = `<button class="cat-tab ${mensCategorie==='alle-actief'?'actief':''}" onclick="kiesMensCategorie('alle-actief')">Alle actief<span class="n">${totActief}</span></button>`;
+  ROLE_ORDE.forEach(c=>{
+    html += `<button class="cat-tab ${mensCategorie===c?'actief':''}" onclick="kiesMensCategorie('${c}')">${CAT_LABEL[c]}<span class="n">${t[c]||0}</span></button>`;
+  });
+  html += `<button class="cat-tab ${mensCategorie==='historisch'?'actief':''}" onclick="kiesMensCategorie('historisch')">Historisch<span class="n">${totHist}</span></button>`;
+  el.innerHTML = html;
+}
+
+function kiesMensCategorie(c) { mensCategorie = c; tekenMensen(); }
+
+function mensenInScope() {
+  let lijst = D.mensen.slice();
+  if (mensCategorie === 'alle-actief') lijst = lijst.filter(m=>!m.historisch);
+  else if (mensCategorie === 'historisch') lijst = lijst.filter(m=>m.historisch);
+  else lijst = lijst.filter(m=>!m.historisch && (m.categorieen||[]).includes(mensCategorie));
+  const q = (document.getElementById('mens-zoek')?.value||'').trim().toLowerCase();
+  if (q) {
+    lijst = lijst.filter(m => [m.naam,m.email,m.telefoon,m.adres,m.plaats,m.opmerkingen,m.status]
+      .some(v => (v||'').toLowerCase().includes(q)));
+  }
+  if (document.getElementById('mens-alleen-checken')?.checked) lijst = lijst.filter(m=>m.teChecken);
+  if (document.getElementById('mens-zonder-email')?.checked) lijst = lijst.filter(m=>!m.email);
+  const statusFilter = document.getElementById('mens-status2026-filter')?.value;
+  if (statusFilter === 'onbekend') lijst = lijst.filter(m=>!m.status2026);
+  else if (statusFilter) lijst = lijst.filter(m=>m.status2026===statusFilter);
+  return lijst.sort((a,b)=>(a.naam||'').localeCompare(b.naam||'','nl'));
+}
+
+function tekenMensStats() {
+  const el = document.getElementById('mens-stats');
+  if (!el) return;
+  const alleActief = D.mensen.filter(m=>!m.historisch);
+  const teChecken = alleActief.filter(m=>m.teChecken).length;
+  const zonderEmail = alleActief.filter(m=>!m.email).length;
+  const zonderContact = alleActief.filter(m=>!m.email && !m.telefoon).length;
+  const bevestigd = alleActief.filter(m=>m.status2026==='bevestigd').length;
+  const geenContact2026 = alleActief.filter(m=>m.status2026==='geen-2026').length;
+  const nogGeenContact = alleActief.length - bevestigd - geenContact2026;
+  el.innerHTML = `
+    <div class="mstat"><b>${alleActief.length}</b>actieve contacten</div>
+    <div class="mstat" style="border-color:var(--groen-licht);"><b style="color:var(--groen-mid);">${bevestigd}</b>bevestigd voor 2026</div>
+    <div class="mstat"><b style="color:var(--goud);">${geenContact2026}</b>contact gehad — doet niet mee</div>
+    <div class="mstat"><b>${nogGeenContact}</b>nog geen contact 2026</div>
+    <div class="mstat ${teChecken?'warn':''}"><b>${teChecken}</b>te checken</div>
+    <div class="mstat"><b>${zonderEmail}</b>zonder e-mail</div>
+    <div class="mstat ${zonderContact?'warn':''}"><b>${zonderContact}</b>zonder e-mail én telefoon</div>
+    <div class="mstat"><b>${D.mensen.filter(m=>m.historisch).length}</b>historisch (niet actief)</div>
+  `;
+}
+
+function tekenMensen() {
+  if (!document.getElementById('mens-tabel')) return;
+  tekenCatTabs();
+  tekenMensStats();
+  const lijst = mensenInScope();
+  const tbody = document.getElementById('mens-tabel');
+  if (!lijst.length) { tbody.innerHTML = `<tr><td colspan="6" class="leeg">Geen contacten gevonden.</td></tr>`; return; }
+  tbody.innerHTML = lijst.map(m=>{
+    const contact = [m.email, m.telefoon].filter(Boolean).join(' · ') || '<span style="color:var(--grijs)">–</span>';
+    const statusTxt = m.historisch ? (m.reden||'') : (m.status||'');
+    const rolBadges = (m.categorieen||[]).map(c=>`<span class="cat-badge">${CAT_LABEL[c]||c}</span>`).join(' ');
+    const rolCel = rolBadges || (m.historisch ? '' : '<span class="cat-badge" style="opacity:.5;">geen rol</span>');
+    const s = m.status2026||'';
+    return `<tr class="${m.teChecken?'te-checken':''} ${m.historisch?'historisch':''}">
+      <td><div class="mens-naam">${m.naam}</div>${m.adres?`<div class="mens-sub">${m.adres}${m.plaats?', '+m.plaats:''}</div>`:''}</td>
+      <td>${rolCel}${m.historisch?' <span class="cat-badge" style="background:var(--rood-licht); color:var(--rood);">Historisch</span>':''}</td>
+      <td style="font-size:11.5px;">${contact}</td>
+      <td style="font-size:11.5px; color:var(--grijs); max-width:260px;">${m.teChecken?'<span class="check-dot"></span>':''}${statusTxt}${m.opmerkingen?`<div class="mens-sub" style="margin-top:2px;">${m.opmerkingen}</div>`:''}</td>
+      <td>
+        <select class="status2026-select ${s?'st-'+s:''}" onchange="setStatus2026('${m.id}', this.value)">
+          <option value="" ${!s?'selected':''}>Nog geen contact</option>
+          <option value="bevestigd" ${s==='bevestigd'?'selected':''}>Bevestigd</option>
+          <option value="geen-2026" ${s==='geen-2026'?'selected':''}>Contact — doet niet mee</option>
+        </select>
+      </td>
+      <td style="white-space:nowrap;"><button class="btn btn-s btn-k" onclick="openPersoonModal('${m.id}')">✏ Bewerken</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openPersoonModal(id) {
+  bewPersoon = id || null;
+  if (id) {
+    const m = D.mensen.find(x=>x.id===id); if (!m) return;
+    document.getElementById('m-pers-titel').textContent = 'Contact bewerken';
+    document.getElementById('pers-naam').value = m.naam||'';
+    document.querySelectorAll('.pers-rol').forEach(cb => cb.checked = (m.categorieen||[]).includes(cb.value));
+    document.getElementById('pers-techecken').value = m.teChecken ? 'ja':'nee';
+    document.getElementById('pers-status2026').value = m.status2026||'';
+    document.getElementById('pers-email').value = m.email||'';
+    document.getElementById('pers-telefoon').value = m.telefoon||'';
+    document.getElementById('pers-adres').value = m.adres||'';
+    document.getElementById('pers-plaats').value = m.plaats||'';
+    document.getElementById('pers-status').value = m.status||'';
+    document.getElementById('pers-historisch').checked = !!m.historisch;
+    document.getElementById('pers-reden').value = m.reden||'';
+    document.getElementById('pers-opmerkingen').value = m.opmerkingen||'';
+    document.getElementById('pers-verwijder-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('m-pers-titel').textContent = 'Nieuw contact';
+    ['pers-naam','pers-email','pers-telefoon','pers-adres','pers-plaats','pers-status','pers-reden','pers-opmerkingen'].forEach(i=>document.getElementById(i).value='');
+    document.querySelectorAll('.pers-rol').forEach(cb => cb.checked = (mensCategorie!=='alle-actief' && mensCategorie!=='historisch' && cb.value===mensCategorie));
+    document.getElementById('pers-techecken').value = 'nee';
+    document.getElementById('pers-status2026').value = '';
+    document.getElementById('pers-historisch').checked = (mensCategorie==='historisch');
+    document.getElementById('pers-verwijder-btn').style.display = 'none';
+  }
+  toggleRedenVeld();
+  document.getElementById('m-persoon').classList.add('open');
+}
+
+function toggleRedenVeld() {
+  const hist = document.getElementById('pers-historisch').checked;
+  document.getElementById('pers-reden-wrap').style.display = hist ? 'block' : 'none';
+}
+
+function setStatus2026(id, waarde) {
+  const m = D.mensen.find(x=>x.id===id); if (!m) return;
+  m.status2026 = waarde; m.bijgewerkt = new Date().toISOString().slice(0,10);
+  save(); tekenMensen();
+}
+
+function slaPersoonOp() {
+  const naam = document.getElementById('pers-naam').value.trim();
+  if (!naam) { alert('Geef een naam.'); return; }
+  const categorieen = [...document.querySelectorAll('.pers-rol')].filter(cb=>cb.checked).map(cb=>cb.value);
+  const data = {
+    naam,
+    categorieen,
+    historisch: document.getElementById('pers-historisch').checked,
+    teChecken: document.getElementById('pers-techecken').value==='ja',
+    status2026: document.getElementById('pers-status2026').value,
+    email: document.getElementById('pers-email').value.trim(),
+    telefoon: document.getElementById('pers-telefoon').value.trim(),
+    adres: document.getElementById('pers-adres').value.trim(),
+    plaats: document.getElementById('pers-plaats').value.trim(),
+    status: document.getElementById('pers-status').value.trim(),
+    reden: document.getElementById('pers-reden').value.trim(),
+    opmerkingen: document.getElementById('pers-opmerkingen').value.trim(),
+    bijgewerkt: new Date().toISOString().slice(0,10),
+  };
+  if (bewPersoon) {
+    const idx = D.mensen.findIndex(x=>x.id===bewPersoon);
+    if (idx>-1) Object.assign(D.mensen[idx], data);
+  } else {
+    D.mensen.push(Object.assign({id:uid()}, data));
+  }
+  save(); sluitModal('m-persoon'); notif('Contact opgeslagen ✓'); tekenMensen();
+}
+
+function verwijderPersoonUitModal() {
+  if (!bewPersoon) return;
+  if (!confirm('Dit contact verwijderen? Overweeg desnoods de categorie "Historisch" te gebruiken in plaats van verwijderen, zodat de geschiedenis bewaard blijft.')) return;
+  D.mensen = D.mensen.filter(m=>m.id!==bewPersoon);
+  save(); sluitModal('m-persoon'); notif('Verwijderd'); tekenMensen();
+}
+
+function vindDubbelingen() {
+  const groepen = [];
+  const negeer = new Set(D.dubbelNegeren||[]);
+
+  const byEmail = {};
+  D.mensen.forEach(m=>{ const e=normEmail(m.email); if (e) { (byEmail[e]=byEmail[e]||[]).push(m); } });
+  Object.entries(byEmail).forEach(([e,lijst])=>{
+    if (lijst.length>1) {
+      const key = 'email:'+e;
+      if (!negeer.has(key)) groepen.push({key, type:'Zelfde e-mailadres', waarde:e, mensen:lijst});
+    }
+  });
+
+  const byTel = {};
+  D.mensen.forEach(m=>{ const t=normTel(m.telefoon); if (t && t.length>=8) { (byTel[t]=byTel[t]||[]).push(m); } });
+  Object.entries(byTel).forEach(([t,lijst])=>{
+    if (lijst.length>1) {
+      const key = 'tel:'+t;
+      if (!negeer.has(key)) groepen.push({key, type:'Zelfde telefoonnummer', waarde:t, mensen:lijst});
+    }
+  });
+
+  const byNaam = {};
+  D.mensen.forEach(m=>{
+    const kern = (m.naam||'').toLowerCase().replace(/[().?]/g,'').split(/\s+/).filter(w=>w.length>2)[0];
+    if (kern) { (byNaam[kern]=byNaam[kern]||[]).push(m); }
+  });
+  Object.entries(byNaam).forEach(([n,lijst])=>{
+    const uniekeNamen = new Set(lijst.map(m=>m.naam));
+    if (lijst.length>1 && uniekeNamen.size>1) {
+      const key = 'naam:'+n;
+      if (!negeer.has(key)) groepen.push({key, type:'Vergelijkbare naam', waarde:n, mensen:lijst});
+    }
+  });
+
+  return groepen;
+}
+
+function toonDubbelingen() {
+  const groepen = vindDubbelingen();
+  const el = document.getElementById('dubbel-inhoud');
+  if (!groepen.length) {
+    el.innerHTML = `<div class="leeg">Geen dubbelingen gevonden 🎉</div>`;
+  } else {
+    el.innerHTML = groepen.map(g=>`
+      <div class="dup-groep">
+        <h4>${g.type}: ${g.waarde}</h4>
+        ${g.mensen.map(m=>`<div class="dup-rij"><span>${m.naam} ${(m.categorieen||[]).map(c=>`<span class="cat-badge">${CAT_LABEL[c]||c}</span>`).join(' ')}</span>
+          <span><button class="btn btn-s btn-k" onclick="sluitModal('m-dubbel'); openPersoonModal('${m.id}')">Bekijken</button></span></div>`).join('')}
+        <div style="margin-top:8px; text-align:right;">
+          <button class="btn btn-s btn-k" onclick="negeerDubbeling('${g.key}')">Negeren</button>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('m-dubbel').classList.add('open');
+}
+
+function negeerDubbeling(key) {
+  if (!D.dubbelNegeren) D.dubbelNegeren=[];
+  D.dubbelNegeren.push(key); save(); toonDubbelingen();
+}
+
+function huidigeExportLijst() {
+  let lijst = D.mensen.slice();
+  if (mensCategorie === 'alle-actief') lijst = lijst.filter(m=>!m.historisch);
+  else if (mensCategorie === 'historisch') lijst = lijst.filter(m=>m.historisch);
+  else lijst = lijst.filter(m=>!m.historisch && (m.categorieen||[]).includes(mensCategorie));
+  return lijst.sort((a,b)=>(a.naam||'').localeCompare(b.naam||'','nl'));
+}
+
+function downloadTekst(inhoud, bestandsnaam) {
+  const blob = new Blob([inhoud], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = bestandsnaam;
+  a.click();
+}
+
+function toggleExportMenu() { document.getElementById('export-drop').classList.toggle('open'); }
+document.addEventListener('click', function(e){
+  const menu = document.getElementById('export-drop');
+  if (menu && !e.target.closest('.export-menu')) menu.classList.remove('open');
+});
+
+function doExport(soort) {
+  document.getElementById('export-drop').classList.remove('open');
+  const lijst = huidigeExportLijst();
+  const datum = new Date().toISOString().slice(0,10);
+  const label = mensCategorie==='alle-actief' ? 'alle-actief' : mensCategorie;
+
+  if (soort==='txt') {
+    const regels = lijst.filter(m=>m.email).map(m=>`${m.naam} - ${m.email}`);
+    downloadTekst(regels.join('\n')+'\n', `mensen_${label}_${datum}.txt`);
+    notif('Naam+e-mail lijst gedownload ✓');
+  } else if (soort==='bcc') {
+    const emails = [...new Set(lijst.filter(m=>m.email).map(m=>m.email))];
+    downloadTekst(emails.join(', '), `bcc_${label}_${datum}.txt`);
+    notif('BCC-lijst gedownload ✓');
+  } else if (soort==='tel') {
+    const metTel = lijst.filter(m=>m.telefoon && !m.email);
+    const mobiel = metTel.filter(m=>isMobiel(m.telefoon));
+    const vast = metTel.filter(m=>!isMobiel(m.telefoon));
+    let txt = `Mensen zonder e-mail, met telefoonnummer (${label})\n${'='.repeat(50)}\n\n`;
+    txt += `MOBIEL — mogelijk WhatsApp/Signal:\n`;
+    txt += (mobiel.map(m=>`- ${m.naam} — ${m.telefoon}`).join('\n') || '- (geen)');
+    txt += `\n\nALLEEN VAST NUMMER:\n`;
+    txt += (vast.map(m=>`- ${m.naam} — ${m.telefoon}`).join('\n') || '- (geen)');
+    downloadTekst(txt+'\n', `telefoonlijst_${label}_${datum}.txt`);
+    notif('Telefoonlijst gedownload ✓');
+  } else if (soort==='csv') {
+    const kopjes = ['Naam','Rollen','Historisch','Reden (indien historisch)','Status 2026','E-mail','Telefoon','Adres','Plaats','Status','Te checken','Opmerkingen','Bijgewerkt'];
+    let csv = kopjes.join(',')+'\n';
+    lijst.forEach(m=>{
+      csv += [m.naam,(m.categorieen||[]).map(c=>CAT_LABEL[c]||c).join('; '),m.historisch?'Ja':'Nee',m.reden,STATUS2026_LABEL[m.status2026||'']||'',m.email,m.telefoon,m.adres,m.plaats,m.status,m.teChecken?'Ja':'Nee',m.opmerkingen,m.bijgewerkt]
+        .map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'\n';
+    });
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `mensen_${label}_${datum}.csv`;
+    a.click();
+    notif('CSV gedownload ✓');
+  } else if (soort==='2026') {
+    const actief = D.mensen.filter(m=>!m.historisch);
+    const bevestigd = actief.filter(m=>m.status2026==='bevestigd');
+    const geenContact2026 = actief.filter(m=>m.status2026==='geen-2026').sort((a,b)=>(a.naam||'').localeCompare(b.naam||'','nl'));
+    const nogGeenContact = actief.filter(m=>!m.status2026).sort((a,b)=>(a.naam||'').localeCompare(b.naam||'','nl'));
+
+    let txt = `2026-voortgangsoverzicht — Pluk & Deel\n${'='.repeat(45)}\n`;
+
+    txt += `\n\nBEVESTIGD — op wie we kunnen rekenen (${bevestigd.length})\n${'-'.repeat(45)}\n`;
+    if (!bevestigd.length) txt += '(nog niemand bevestigd)\n';
+    ROLE_ORDE.forEach(c=>{
+      const groep = bevestigd.filter(m=>(m.categorieen||[]).includes(c)).sort((a,b)=>(a.naam||'').localeCompare(b.naam||'','nl'));
+      if (!groep.length) return;
+      txt += `\n${CAT_LABEL[c]} (${groep.length})\n`;
+      txt += groep.map(m=>`- ${m.naam}${m.email?' — '+m.email:''}${m.telefoon?' — '+m.telefoon:''}`).join('\n') + '\n';
+    });
+
+    txt += `\n\nCONTACT GEHAD — doet (nu) niet mee, mogelijk toekomst (${geenContact2026.length})\n${'-'.repeat(45)}\n`;
+    txt += (geenContact2026.map(m=>`- ${m.naam}${m.opmerkingen?' — '+m.opmerkingen:''}`).join('\n') || '(niemand)') + '\n';
+
+    txt += `\n\nNOG GEEN CONTACT 2026 — mogelijk onbereikbaar (overleden/verhuisd/anders) (${nogGeenContact.length})\n${'-'.repeat(45)}\n`;
+    txt += (nogGeenContact.map(m=>`- ${m.naam}${m.email?' — '+m.email:''}${m.telefoon?' — '+m.telefoon:''}`).join('\n') || '(niemand)') + '\n';
+
+    downloadTekst(txt, `2026_voortgang_${datum}.txt`);
+    notif('2026-voortgangsoverzicht gedownload ✓');
+  }
+}
+
+// ════════════════════════════════
 // MODALS
 // ════════════════════════════════
 function sluitModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -1021,6 +1582,7 @@ function herlaad() {
   jaarBalken(); vulSelects();
   tekenEdities(); tekenUitgaven(); tekenOverzicht(); tekenBanner();
   if (document.getElementById('tab-afrekening')?.classList.contains('actief')) tekenAfrekening();
+  if (document.getElementById('tab-mensen')?.classList.contains('actief')) tekenMensen();
 }
 
 // ════════════════════════════════
@@ -1098,6 +1660,7 @@ function init() {
 }
 
 init();
+zorgMensenData();
 herlaad();
 laadRestant();
 </script>
